@@ -505,6 +505,50 @@ class Component extends DCLogic {
     this.onPanMove = this.onPanMove.bind(this);
     this.onPanUp = this.onPanUp.bind(this);
     this.onPanWheel = this.onPanWheel.bind(this);
+    // Reopens whatever model was last picked in this tab (sessionStorage
+    // survives a reload but not a new tab/window) — otherwise tapping an
+    // external product-info link (installation manual, product page) and
+    // returning via the browser's back button lands back on the empty "no
+    // detail selected" state, having lost the model that was on screen.
+    // Set directly on the initial state (not via setState — this runs
+    // before mount) so initThree()'s first, unconditional loadModel() call
+    // already sees the right model picked and loads it without a flash of
+    // the empty state first. Restored imports aren't in MODELS yet at this
+    // point (they load from IndexedDB asynchronously) — those are handled
+    // separately, after restoreImports() resolves.
+    let pickedKey = null;
+    try { pickedKey = sessionStorage.getItem("gv.pickedModel"); } catch (e) {}
+    if (pickedKey) {
+      const idx = Component.MODELS.findIndex(m => (m.importId || m.code) === pickedKey);
+      if (idx !== -1) { this.state.model = idx; this.state.picked = true; }
+    }
+  }
+
+  // Remembers (or forgets) the active model, keyed by importId/code so it
+  // survives a reload — called from loadModel() once it knows the real spec.
+  persistPickedModel(spec) {
+    try {
+      if (this.state.picked && spec && (spec.importId || spec.code)) {
+        sessionStorage.setItem("gv.pickedModel", spec.importId || spec.code);
+      } else {
+        sessionStorage.removeItem("gv.pickedModel");
+      }
+    } catch (e) {}
+  }
+
+  // Import restoration finishes after mount, asynchronously — if the model
+  // that was active before a reload turns out to be a restored import
+  // (not a built-in, so the constructor above couldn't find it yet in
+  // MODELS), pick it up now that it exists.
+  tryRestorePickedModel() {
+    if (this.state.picked) return false;
+    let pickedKey = null;
+    try { pickedKey = sessionStorage.getItem("gv.pickedModel"); } catch (e) {}
+    if (!pickedKey) return false;
+    const idx = Component.MODELS.findIndex(m => (m.importId || m.code) === pickedKey);
+    if (idx === -1) return false;
+    this.setState({ model: idx, picked: true }, () => this.loadModel());
+    return true;
   }
 
   // The sheet image src is set imperatively: a {{ hole }} in a src attribute
@@ -911,8 +955,11 @@ class Component extends DCLogic {
     // first restored import. One shot only: an empty this.root is a legitimate
     // steady state now, so it can never be used to decide to load again.
     // Restored imports are listed in the picker but NOT opened: an empty stage
-    // with the "no detail selected" prompt is the intended first view.
-    this.forceUpdate();
+    // with the "no detail selected" prompt is the intended first view — unless
+    // an import was the model actively picked before this reload, in which
+    // case it wasn't in MODELS yet for the constructor's restore to find, so
+    // it's picked up here instead, now that it exists.
+    if (!this.tryRestorePickedModel()) this.forceUpdate();
   }
 
   // Register the file as an ordinary MODELS entry so every downstream system
@@ -1605,6 +1652,7 @@ class Component extends DCLogic {
 
   async loadModel() {
     const spec = Component.MODELS[this.state.model] || Component.MODELS[0] || {};
+    this.persistPickedModel(spec);
     this.clearModel();
     // initThree() calls this unconditionally on mount, before anything has
     // been picked — harmless while MODELS started empty (spec.buffer/url was
