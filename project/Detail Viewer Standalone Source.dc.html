@@ -1550,7 +1550,15 @@ class Component extends DCLogic {
   async loadModel() {
     const spec = Component.MODELS[this.state.model] || Component.MODELS[0] || {};
     this.clearModel();
-    if (spec.buffer || spec.url) {
+    // initThree() calls this unconditionally on mount, before anything has
+    // been picked — harmless while MODELS started empty (spec.buffer/url was
+    // never set), but a built-in model (spec.url set from boot, not added
+    // later like a restored import) would otherwise load and render right
+    // away, visible behind the "No detail selected" prompt (that prompt only
+    // gates noModel's *text*, not whether the 3D scene loads anything). Real
+    // loads wait for an explicit pick; onPick already sets picked before
+    // calling loadModel, so this doesn't affect the normal selection flow.
+    if (this.state.picked && (spec.buffer || spec.url)) {
       try {
         const Loader = this.GLTFLoader ||
           (await import("three/addons/loaders/GLTFLoader.js")).GLTFLoader;
