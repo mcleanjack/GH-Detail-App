@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<script src="product-data.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&amp;family=Archivo:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap" rel="stylesheet">
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<style>
+html,body{margin:0;min-height:100%;background:#0a0a0a;font-family:'Barlow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#8f8f8d}a:hover{color:#cfcfcd}
+@keyframes textPulse{0%,100%{opacity:.52}50%{opacity:1}}
+@keyframes livePulse{0%,100%{opacity:.35;transform:scale(.82)}50%{opacity:1;transform:scale(1)}}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;accent-color:#6e6e6c;color:#6e6e6c}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:#6e6e6c}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:11px;height:11px;border:0;border-radius:50%;background:#6e6e6c;box-shadow:0 1px 2px rgba(0,0,0,.35);margin-top:-5px}
+input[type=range]::-moz-range-track{height:1px;background:#6e6e6c}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border:0;border-radius:50%;background:#6e6e6c;box-shadow:0 1px 2px rgba(0,0,0,.35)}
+input[type=range]::-ms-thumb{width:11px;height:11px;border:0;border-radius:50%;background:#6e6e6c}
+input[type=range]:focus{outline:none}
+</style>
+</helmet>
+
+<div style="min-height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; padding: 34px 30px; position: absolute; background: #ffffff; background-image: linear-gradient(to right, rgba(40,48,44,.075) 0 1px, transparent 1px 100%), linear-gradient(to bottom, rgba(40,48,44,.075) 0 1px, transparent 1px 100%); background-repeat: repeat, repeat; background-size: 40px 40px, 40px 40px; background-position: 0 0, 0 0; left: -7px; top: -3px">
+<div style="position:relative;z-index:1;width:100%;max-width:1357px;aspect-ratio:16/9;border-radius:12px;background-color:#131313;border:1px solid #040404;overflow:hidden;display:flex;flex-direction:column;background-image:url(assets/graphite-grain.png),linear-gradient(152deg, #1f1f1f 0%, #161616 40%, #0d0d0d 82%, #0a0a0a 100%);background-repeat:repeat,no-repeat;background-size:104px 104px,cover;background-blend-mode:overlay,normal;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.022),0 1px 2px rgba(0,0,0,.21),0 6px 14px rgba(0,0,0,.13),0 18px 34px rgba(0,0,0,.105),0 40px 70px rgba(0,0,0,.09)">
+
+
+
+<header style="height: 70px; flex: none; position: relative; display: flex; align-items: center; padding: 0; background-color: #141414; background-image: linear-gradient(180deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.014) 40%, rgba(255,255,255,0) 100%),url(assets/graphite-grain.png),linear-gradient(146deg, #1a1a1a 0%, #151515 44%, #0e0e0e 100%); background-repeat: no-repeat,repeat,no-repeat; background-size: cover,104px 104px,cover; background-blend-mode: screen,overlay,normal; box-shadow: inset 0 1px 0 rgba(255,255,255,.06),inset 0 -1px 0 rgba(0,0,0,.6)">
+
+<div style="width:234px;flex:none;display:flex;flex-direction:column;align-items:center;gap:9px"><img src="assets/glenvill-logo.png" alt="Glenvill Homes" style="width: 200px; height: auto; display: block; opacity: 1; border-radius: 1px; image-rendering: -webkit-optimize-contrast; opacity: .92; filter: brightness(.34) contrast(1.05) drop-shadow(0 -1px 1px rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.16)) drop-shadow(0 2px 2px rgba(255,255,255,.06))"></div><div style="flex:1;margin-left:3px;display:flex;align-items:center;justify-content:center">
+<dc-import name="Toolbar Buttons" size="lg" active-tool="{{ activeTool }}" hidden-tools="{{ hiddenTools }}" on-select="{{ onToolSelect }}" hint-size="224px,46px"></dc-import>
+</div>
+
+<sc-if value="{{ is3D }}" hint-placeholder-val="{{ true }}">
+<div style="position:relative;flex:none;width:252px;margin-right:22px;z-index:30;font-family:'Archivo',system-ui,sans-serif">
+
+<button type="button" onClick="{{ togglePicker }}" style="width:100%;display:flex;align-items:center;gap:9px;height:{{ pickerH }}px;padding:0 11px;border:none;cursor:pointer;border-radius:4px;text-align:left;background:linear-gradient(128deg, #222221 0%, #1b1b1a 52%, #141413 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 0 0 1px rgba(0,0,0,.6),0 1px 2px rgba(0,0,0,.4);transition:box-shadow 160ms ease" style-hover="box-shadow:inset 0 1px 0 rgba(255,255,255,.1),inset 0 0 0 1px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.05)">
+<span style="flex:none;font-size:11px;font-weight:700;line-height:1;color:#4e8a71;animation:livePulse 2.4s ease-in-out infinite">+</span>
+<span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+<span style="font-size:7px;font-weight:600;letter-spacing:.22em;text-transform:uppercase;color:rgba(255,255,255,.3)">Model</span>
+<span style="font-size:11px;font-weight:600;letter-spacing:.005em;color:#c9c8c6;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ modelName }}</span>
+</span>
+<span style="flex:none;font-size:9px;color:rgba(255,255,255,.38);transform:rotate({{ pickerArrow }});transition:transform 220ms ease">▾</span>
+</button>
+
+<sc-if value="{{ pickerOpen }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;right:0;width:100%;border-radius:5px;overflow:hidden;background:linear-gradient(180deg, #1e1e1d 0%, #161615 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 0 0 1px rgba(0,0,0,.7),0 12px 28px rgba(0,0,0,.5)">
+<div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid rgba(255,255,255,.06)">
+<span style="font-size:11px;color:rgba(255,255,255,.32)">⌕</span>
+<input type="text" value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search models" style="flex:1;min-width:0;border:none;outline:none;background:transparent;color:#d5d4d2;font-family:'Archivo',system-ui,sans-serif;font-size:11px;font-weight:500;letter-spacing:.01em">
+</div>
+<div style="max-height:212px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;padding:5px">
+<sc-for list="{{ modelResults }}" as="m" hint-placeholder-count="4">
+<button type="button" onClick="{{ m.onPick }}" style="width:100%;display:flex;align-items:center;gap:9px;min-height:{{ tapH }}px;padding:{{ rowPad }};border:none;cursor:pointer;border-radius:3px;text-align:left;background:{{ m.bg }};transition:background 130ms ease" style-hover="background:rgba(255,255,255,.055)">
+<span style="flex:none;font-size:10px;font-weight:700;line-height:1;color:{{ m.dot }}">+</span>
+<span style="flex:1;min-width:0;font-size:11px;font-weight:{{ m.weight }};color:{{ m.color }};white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.name }}</span>
+<span style="flex:none;font-size:7.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.26)">{{ m.code }}</span>
+</button>
+</sc-for>
+<sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}">
+<div style="padding:14px 9px;font-size:10.5px;color:rgba(255,255,255,.3);text-align:center">No models match</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+</div>
+</sc-if>
+
+</header><div style="flex:1;min-height:0;display:flex;gap:1px;background:rgba(255,255,255,.045)">
+<aside style="width:234px;flex:none;display:flex;flex-direction:column;gap:1px;background:rgba(255,255,255,.045)">
+<div style="position:relative;flex:1;background-color:#e0e2e1;background-image:url(assets/graphite-grain.png),linear-gradient(178deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,0) 26%),radial-gradient(ellipse 92% 78% at 44% 22%, #f5f6f5 0%, #ebeceb 44%, #dcdedd 100%);background-repeat:repeat,no-repeat,no-repeat;background-size:104px 104px,cover,cover;background-blend-mode:overlay,normal,normal;border-top-left-radius:6px;border-top-right-radius:3px;border-bottom-left-radius:3px;border-bottom-right-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.62),inset 0 0 0 1px rgba(40,48,44,.045),inset 0 -14px 24px -18px rgba(40,48,44,.3)">
+<div style="position:absolute;inset:0;padding:16px 14px 14px 13px;display:flex;flex-direction:column;gap:13px;overflow-y:auto;font-family:'Archivo',system-ui,sans-serif">
+
+<sc-if value="{{ showPrompt }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center;gap:13px;padding-bottom:10px">
+<div style="display:flex;align-items:center;gap:7px">
+<div style="font-size:13px;font-weight:700;line-height:1;color:#3f6b58;animation:livePulse 2.4s ease-in-out infinite">+</div>
+<div style="font-size:7.5px;font-weight:600;letter-spacing:.2em;color:rgba(40,48,44,.4);text-transform:uppercase">{{ promptLabel }}</div>
+<div style="flex:1;height:1px;background:linear-gradient(90deg, rgba(40,48,44,.2), rgba(40,48,44,0) 88%)"></div>
+</div>
+<div style="font-size:14px;font-weight:700;text-transform:uppercase;letter-spacing:-.01em;line-height:1.16;color:#232a26;text-wrap:balance;animation:textPulse 2.4s ease-in-out infinite">{{ promptTitle }}</div>
+<div style="font-size:10px;font-weight:400;line-height:1.5;color:rgba(35,42,38,.6)">{{ promptHint }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ showInfo }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:6px">
+<div style="display:flex;align-items:center;gap:6px">
+<div style="font-size:7.5px;font-weight:600;letter-spacing:.2em;color:rgba(40,48,44,.4);text-transform:uppercase">Description</div>
+<div style="flex:1;height:1px;background:linear-gradient(90deg, rgba(40,48,44,.2), rgba(40,48,44,0) 88%)"></div>
+</div>
+<div style="display:flex;align-items:baseline;gap:8px;min-width:0">
+<div style="flex:1;min-width:0;font-size:12px;font-weight:700;letter-spacing:-.005em;line-height:1.14;color:#232a26">{{ infoScope }}</div>
+<sc-if value="{{ hasSelection }}" hint-placeholder-val="{{ false }}">
+<button type="button" onClick="{{ clearSelection }}" style="flex:none;border:none;background:none;padding:0;cursor:pointer;font-family:'Archivo',system-ui,sans-serif;font-size:7.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(40,48,44,.42)" style-hover="color:#171c19">Clear</button>
+</sc-if>
+</div>
+<sc-if value="{{ hasDesc }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:10.5px;font-weight:400;line-height:1.5;color:rgba(35,42,38,.82);text-wrap:pretty">{{ infoDesc }}</div>
+</sc-if>
+<sc-if value="{{ hasSpecs }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:5px;margin-top:3px">
+<sc-for list="{{ specRows }}" as="r" hint-placeholder-count="3">
+<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">
+<div style="font-size:7.5px;font-weight:600;letter-spacing:.14em;color:rgba(40,48,44,.36);text-transform:uppercase;flex:none">{{ r.label }}</div>
+<div style="font-size:10.5px;font-weight:500;font-variant-numeric:tabular-nums;color:rgba(35,42,38,.86);text-align:right">{{ r.value }}</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+
+<sc-if value="{{ hasDocs }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;align-items:center;gap:6px">
+<div style="font-size:7.5px;font-weight:600;letter-spacing:.2em;color:rgba(40,48,44,.4);text-transform:uppercase">Documents</div>
+<div style="flex:1;height:1px;background:linear-gradient(90deg, rgba(40,48,44,.2), rgba(40,48,44,0) 88%)"></div>
+</div>
+<a href="{{ infoManualHref }}" style="display:flex;align-items:center;gap:6px;text-decoration:none;font-size:10.5px;font-weight:600;color:#171c19" style-hover="color:#3f6b58">
+<span style="flex:none;font-size:11px;font-weight:700;line-height:1;color:#171c19;animation:livePulse 2.4s ease-in-out infinite">+</span>
+<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Installation manual</span>
+</a>
+<a href="{{ infoProductHref }}" style="display:flex;align-items:center;gap:6px;text-decoration:none;font-size:10.5px;font-weight:600;color:#171c19" style-hover="color:#3f6b58">
+<span style="flex:none;font-size:11px;font-weight:700;line-height:1;color:#171c19;animation:livePulse 2.4s ease-in-out infinite">+</span>
+<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Product page</span>
+</a>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasSupplier }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<div style="display:flex;align-items:center;gap:6px">
+<div style="font-size:7.5px;font-weight:600;letter-spacing:.2em;color:rgba(40,48,44,.4);text-transform:uppercase">Supplier</div>
+<div style="flex:1;height:1px;background:linear-gradient(90deg, rgba(40,48,44,.2), rgba(40,48,44,0) 88%)"></div>
+</div>
+<sc-if value="{{ hasSupplierName }}" hint-placeholder-val="{{ false }}">
+<div style="font-size:12px;font-weight:700;letter-spacing:-.005em;line-height:1.14;color:#232a26">{{ infoSupplier }}</div>
+</sc-if>
+<div style="display:flex;flex-direction:column;gap:5px">
+<sc-if value="{{ hasContact }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">
+<div style="font-size:7.5px;font-weight:600;letter-spacing:.14em;color:rgba(40,48,44,.36);text-transform:uppercase;flex:none">Contact</div>
+<div style="font-size:10.5px;font-weight:500;color:rgba(35,42,38,.86);text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ infoContact }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ hasPhone }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">
+<div style="font-size:7.5px;font-weight:600;letter-spacing:.14em;color:rgba(40,48,44,.36);text-transform:uppercase;flex:none">Phone</div>
+<div style="font-size:10.5px;font-weight:500;font-variant-numeric:tabular-nums;color:rgba(35,42,38,.86);text-align:right">{{ infoPhone }}</div>
+</div>
+</sc-if>
+<sc-if value="{{ hasEmail }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;justify-content:space-between;gap:8px;align-items:baseline">
+<div style="font-size:7.5px;font-weight:600;letter-spacing:.14em;color:rgba(40,48,44,.36);text-transform:uppercase;flex:none">Email</div>
+<a href="{{ infoEmailHref }}" style="font-size:10.5px;font-weight:500;color:#3f6b58;text-decoration:none;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0" style-hover="color:#2b322e">{{ infoEmail }}</a>
+</div>
+</sc-if>
+</div>
+</div>
+</sc-if>
+
+</div>
+</div>
+<div style="position: relative; height: 78px; flex: none; background-color:#e0e2e1;background-image:url(assets/graphite-grain.png),linear-gradient(178deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,0) 26%),radial-gradient(ellipse 92% 78% at 44% 22%, #f5f6f5 0%, #ebeceb 44%, #dcdedd 100%);background-repeat:repeat,no-repeat,no-repeat;background-size:104px 104px,cover,cover;background-blend-mode:overlay,normal,normal; border-radius: 3px; border-bottom-left-radius: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,.62),inset 0 0 0 1px rgba(40,48,44,.045),inset 0 -12px 20px -16px rgba(40,48,44,.28)">
+<div style="position:absolute;inset:0;padding:0 14px 0 13px;display:flex;align-items:center;gap:12px;overflow:hidden">
+<div style="flex:none;display:flex;align-items:center;justify-content:center;width:44px;height:44px">
+<div style="font-family:'Archivo',system-ui,sans-serif;font-size:21px;font-weight:700;letter-spacing:-.045em;line-height:1;color:rgba(40,48,44,.38);text-shadow:0 1px 0 rgba(255,255,255,.9),0 -1px 1px rgba(40,48,44,.24);transition:color 240ms ease">{{ dimLabel }}</div>
+</div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:5px">
+<div style="display:flex;align-items:center;gap:5px">
+<div style="flex:none;font-size:11px;font-weight:700;line-height:1;color:{{ dimBg }};animation:livePulse 2.4s ease-in-out infinite;transition:color 240ms ease">+</div>
+<div style="font-family:'Archivo',system-ui,sans-serif;font-size:7.5px;font-weight:600;letter-spacing:.2em;color:rgba(40,48,44,.4);text-transform:uppercase">Active view</div>
+</div>
+<div style="font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:700;color:#232a26;line-height:1.06;text-transform:uppercase;letter-spacing:-.005em;text-wrap:balance;transition:opacity 200ms ease">{{ viewTitle }}</div>
+<div style="height:1px;width:100%;background:linear-gradient(90deg, rgba(40,48,44,.2), rgba(40,48,44,0) 88%)"></div>
+</div>
+</div>
+</div>
+</aside><main style="flex: 1; min-width: 0; position: relative; background-color: #e0e2e1; background-image: url(assets/graphite-grain.png), linear-gradient(178deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,0) 26%), radial-gradient(ellipse 92% 78% at 44% 22%, #f5f6f5 0%, #ebeceb 44%, #dcdedd 100%); background-repeat: repeat, no-repeat, no-repeat; background-size: 104px 104px, cover, cover; background-blend-mode: overlay, normal, normal; box-shadow: inset 0 1px 0 rgba(255,255,255,.62), inset 0 0 0 1px rgba(40,48,44,.045), inset 0 -14px 24px -18px rgba(40,48,44,.3); overflow: hidden; border-radius: 3px; border-top-right-radius: 6px; border-bottom-right-radius: 6px">
+<div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 38% 32% at 43% 30%, rgba(255,255,255,.5), rgba(255,255,255,0) 72%)"></div>
+<div style="position:absolute;top:30px;left:50%;z-index:6;pointer-events:none;display:flex;flex-direction:column;align-items:center;gap:7px;transform:translate(-50%,{{ stageShift }});opacity:{{ stageOpacity }};transition:opacity 520ms ease, transform 520ms cubic-bezier(.22,.61,.36,1);font-family:'Archivo',system-ui,sans-serif">
+<div style="display:flex;align-items:center;gap:8px">
+<div style="width:26px;height:1px;background:linear-gradient(90deg, rgba(40,48,44,0), rgba(40,48,44,.28))"></div>
+<div style="font-size:8px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:rgba(40,48,44,.42)">Assembly stage</div>
+<div style="width:26px;height:1px;background:linear-gradient(90deg, rgba(40,48,44,.28), rgba(40,48,44,0))"></div>
+</div>
+<div style="display:flex;align-items:baseline;gap:7px">
+<div style="font-size:34px;font-weight:700;letter-spacing:-.05em;line-height:.9;color:rgba(40,48,44,.42);text-shadow:0 1px 0 rgba(255,255,255,.95),0 -1px 1px rgba(40,48,44,.22)">{{ stageNum }}</div>
+<div style="font-size:11px;font-weight:600;letter-spacing:.08em;color:rgba(40,48,44,.3);text-shadow:0 1px 0 rgba(255,255,255,.8)">/ {{ stageTotal }}</div>
+</div>
+</div>
+<div style="position:absolute;left:50%;top:50%;width:74%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;border:1px solid rgba(40,48,44,.06)"></div>
+<div style="position:absolute;left:50%;top:50%;width:104%;aspect-ratio:1;transform:translate(-50%,-50%);border-radius:50%;pointer-events:none;border:1px solid rgba(40,48,44,.035)"></div>
+<div ref="{{ mountRef }}" style="position:absolute;inset:0;touch-action:none;opacity:{{ modelOpacity }};pointer-events:{{ modelPointer }}"></div>
+
+<sc-if value="{{ is2D }}" hint-placeholder-val="{{ false }}">
+<div ref="{{ panWrapRef }}" onDoubleClick="{{ onPanReset }}" style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;overflow:hidden;touch-action:none;cursor:grab">
+<img ref="{{ panImgRef }}" alt="{{ sheetTitle }}" draggable="false" style="max-width:95%;max-height:94%;width:auto;height:auto;object-fit:contain;mix-blend-mode:multiply;transform-origin:50% 50%;user-select:none;pointer-events:none">
+</div>
+</sc-if>
+
+<sc-if value="{{ is3D }}" hint-placeholder-val="{{ true }}">
+<div style="position: absolute; top: 12px; right: 20px; user-select: none">
+<x-import component="OrbitCube" from="./OrbitCube.jsx?v=5" touch="{{ isTouch }}" three="{{ three }}" get-quaternion="{{ getCamQuat }}" on-select-view="{{ onGizmoView }}" on-orbit="{{ onGizmoOrbit }}" size="{{ gizmoSize }}" hint-size="114px,114px"></x-import>
+</div>
+</sc-if>
+
+<sc-if value="{{ showDiag }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:14px;left:14px;z-index:24;width:min(340px,52%);max-height:calc(100% - 28px);display:flex;flex-direction:column;border-radius:5px;overflow:hidden;background:linear-gradient(180deg,#222824 0%,#161a18 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 0 0 1px rgba(0,0,0,.6),0 14px 30px rgba(0,0,0,.38)">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:8px 10px;border-bottom:1px solid rgba(0,0,0,.5)">
+<span style="font-family:'Archivo',system-ui,sans-serif;font-size:7.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:rgba(255,255,255,.5)">Model structure</span>
+<button type="button" onClick="{{ hideDiag }}" style="flex:none;width:{{ closeSz }}px;height:{{ closeSz }}px;border:none;cursor:pointer;border-radius:3px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font-size:11px;line-height:1" style-hover="background:rgba(255,255,255,.12);color:#e2e1df">×</button>
+</div>
+<div style="padding:9px 10px;overflow:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:9.5px;line-height:1.55;color:rgba(255,255,255,.72);white-space:pre-wrap">{{ diagText }}</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ hasLoadError }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:20;display:flex;align-items:center;gap:10px;max-width:min(520px,86%);padding:9px 11px;border-radius:5px;background:linear-gradient(180deg,#2a1f1d 0%,#1c1514 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 0 0 1px rgba(0,0,0,.6),0 12px 26px rgba(0,0,0,.34);font-family:'Archivo',system-ui,sans-serif">
+<span style="flex:none;font-size:7.5px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:#c98a7e">Import failed</span>
+<span style="flex:1;min-width:0;font-family:'Barlow',system-ui,sans-serif;font-size:10.5px;font-weight:400;line-height:1.45;color:rgba(255,255,255,.72);text-wrap:pretty">{{ loadError }}</span>
+<button type="button" onClick="{{ dismissLoadError }}" style="flex:none;width:{{ closeSz }}px;height:{{ closeSz }}px;border:none;cursor:pointer;border-radius:3px;background:rgba(255,255,255,.06);color:rgba(255,255,255,.6);font-size:11px;line-height:1" style-hover="background:rgba(255,255,255,.12);color:#e2e1df">×</button>
+</div>
+</sc-if>
+
+<div style="position:absolute;bottom:16px;right:20px;display:flex;align-items:center;gap:13px;color:#454b48">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"></circle><path d="m15.2 15.2 4.3 4.3M8 10.5h5"></path></svg>
+<input type="range" min="0" max="100" value="{{ zoom }}" onChange="{{ onZoom }}" onInput="{{ onZoom }}" style="width:96px;height:26px;background:transparent;cursor:pointer">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"></circle><path d="m15.2 15.2 4.3 4.3M8 10.5h5M10.5 8v5"></path></svg>
+</div>
+</main>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;autoRotate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { wire: false, zoom: 52, tool: "cube", ready: false, pan: { x: 0, y: 0 }, dragging: false, stage: 1, stageCount: 3, stageNames: [], stageShown: false, pickerOpen: false, query: "", model: 0, selected: null, componentNames: [] };
+
+  static MODELS = [];
+
+  constructor(p) {
+    super(p);
+    this.mount = React.createRef();
+    this.panWrap = React.createRef();
+    this.panImg = React.createRef();
+    this._pan = { x: 0, y: 0 };
+    this.onPanDown = this.onPanDown.bind(this);
+    this.onPanMove = this.onPanMove.bind(this);
+    this.onPanUp = this.onPanUp.bind(this);
+    this.onPanWheel = this.onPanWheel.bind(this);
+  }
+
+  // The sheet image src is set imperatively: a {{ hole }} in a src attribute
+  // is fetched literally before values resolve, and a model with no sheet
+  // should issue no request at all.
+  applySheet() {
+    const el = this.panImg.current;
+    if (!el) return;
+    const spec = Component.MODELS[this.state.model] || Component.MODELS[0] || {};
+    const src = spec.sheet || "";
+    if (src) { if (el.getAttribute("src") !== src) el.setAttribute("src", src); }
+    else el.removeAttribute("src");
+  }
+
+  panScale() { return 0.7 + (this.state.zoom / 100) * 2.6; }
+
+  clampPan() {
+    const img = this.panImg.current, wrap = this.panWrap.current;
+    if (!img || !wrap) return;
+    const s = this.panScale();
+    const maxX = Math.max(0, (img.offsetWidth * s - wrap.clientWidth) / 2);
+    const maxY = Math.max(0, (img.offsetHeight * s - wrap.clientHeight) / 2);
+    this._pan = {
+      x: Math.max(-maxX, Math.min(maxX, this._pan.x)),
+      y: Math.max(-maxY, Math.min(maxY, this._pan.y))
+    };
+  }
+
+  applyPan(animate) {
+    const img = this.panImg.current;
+    if (!img) return;
+    this.clampPan();
+    img.style.transition = animate ? "transform 140ms ease-out" : "none";
+    img.style.transform = "translate(" + this._pan.x + "px," + this._pan.y + "px) scale(" + this.panScale().toFixed(3) + ")";
+  }
+
+  bindPan() {
+    const wrap = this.panWrap.current;
+    if (wrap === this._panBound) return;
+    if (this._panBound) {
+      this._panBound.removeEventListener("pointerdown", this.onPanDown);
+      this._panBound.removeEventListener("wheel", this.onPanWheel);
+    }
+    this._panBound = wrap;
+    if (wrap) {
+      wrap.addEventListener("pointerdown", this.onPanDown);
+      wrap.addEventListener("wheel", this.onPanWheel, { passive: false });
+    }
+  }
+
+  // The drawing sheet is dragged with one finger and zoomed with two, so touch
+  // reaches the same range as the wheel does on a desktop. Active pointers are
+  // tracked by id because a pinch delivers two independent pointer streams.
+  onPanDown(e) {
+    if (e.button !== undefined && e.button !== 0) return;
+    e.preventDefault();
+    e.stopPropagation();
+    this._pts = this._pts || new Map();
+    this._pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (this._pts.size === 2) {
+      const [a, b] = Array.from(this._pts.values());
+      this._pinch = { d: Math.hypot(a.x - b.x, a.y - b.y) || 1, z: this.state.zoom };
+      this._drag = null;
+    } else {
+      this._drag = { x: e.clientX, y: e.clientY, px: this._pan.x, py: this._pan.y };
+      if (this._panBound) this._panBound.style.cursor = "grabbing";
+    }
+    if (e.target && e.target.setPointerCapture) { try { e.target.setPointerCapture(e.pointerId); } catch (err) {} }
+    window.addEventListener("pointermove", this.onPanMove, true);
+    window.addEventListener("pointerup", this.onPanUp, true);
+    window.addEventListener("pointercancel", this.onPanUp, true);
+  }
+
+  onPanMove(e) {
+    if (this._pts && this._pts.has(e.pointerId)) this._pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (this._pinch && this._pts && this._pts.size >= 2) {
+      e.preventDefault();
+      const [a, b] = Array.from(this._pts.values());
+      const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      const v = Math.max(0, Math.min(100, this._pinch.z + (d / this._pinch.d - 1) * 62));
+      if (Math.abs(v - this.state.zoom) > 0.5) this.setState({ zoom: v });
+      return;
+    }
+    const d = this._drag;
+    if (!d) return;
+    e.preventDefault();
+    this._pan = { x: d.px + (e.clientX - d.x), y: d.py + (e.clientY - d.y) };
+    this.applyPan(false);
+  }
+
+  onPanUp(e) {
+    if (e && this._pts) this._pts.delete(e.pointerId);
+    if (this._pts && this._pts.size === 1) {
+      // Lifting one finger of a pinch hands control back to a one-finger drag.
+      const p = Array.from(this._pts.values())[0];
+      this._pinch = null;
+      this._drag = { x: p.x, y: p.y, px: this._pan.x, py: this._pan.y };
+      return;
+    }
+    if (this._pts && this._pts.size > 1) return;
+    this._pinch = null;
+    this._drag = null;
+    if (this._pts) this._pts.clear();
+    if (this._panBound) this._panBound.style.cursor = "grab";
+    window.removeEventListener("pointermove", this.onPanMove, true);
+    window.removeEventListener("pointerup", this.onPanUp, true);
+    window.removeEventListener("pointercancel", this.onPanUp, true);
+  }
+
+  onPanWheel(e) {
+    e.preventDefault();
+    const v = Math.max(0, Math.min(100, this.state.zoom - e.deltaY * 0.09));
+    if (v !== this.state.zoom) this.setState({ zoom: v });
+  }
+
+  componentDidMount() {
+    this.initThree().catch(err => { window.__threeErr = String(err && err.stack || err); console.error("initThree failed", err); });
+  }
+  componentWillUnmount() {
+    this.onPanUp();
+    if (this._panBound) {
+      this._panBound.removeEventListener("pointerdown", this.onPanDown);
+      this._panBound.removeEventListener("wheel", this.onPanWheel);
+      this._panBound = null;
+    }
+    cancelAnimationFrame(this._raf);
+    if (this._ro) this._ro.disconnect();
+    if (this.renderer) this.renderer.dispose();
+  }
+  // Debug handle: lets the console inspect the live scene (see the D readout).
+  get __self() { if (typeof window !== "undefined") window.__viewer = this; return this; }
+
+  componentDidUpdate() {
+    if (typeof window !== "undefined") window.__viewer = this;
+    this.applyWire();
+    this.bindPan();
+    this.applySheet();
+    this.applyPan(true);
+    const el = this.mount.current;
+    if (el && this.renderer && !el.contains(this.renderer.domElement)) el.appendChild(this.renderer.domElement);
+  }
+
+  async initThree() {
+    const THREE = await import("three");
+    const { OrbitControls } = await import("three/addons/controls/OrbitControls.js");
+    const { RoundedBoxGeometry } = await import("three/addons/geometries/RoundedBoxGeometry.js");
+    this.RoundedBoxGeometry = RoundedBoxGeometry;
+    const { RoomEnvironment } = await import("three/addons/environments/RoomEnvironment.js");
+    const { GLTFLoader } = await import("three/addons/loaders/GLTFLoader.js");
+    this.GLTFLoader = GLTFLoader;
+    // Compressed-geometry / compressed-texture decoders. Many GLB exports use
+    // Draco or KTX2; without these the loader throws instead of loading.
+    try {
+      const { DRACOLoader } = await import("three/addons/loaders/DRACOLoader.js");
+      const draco = new DRACOLoader();
+      draco.setDecoderPath("https://unpkg.com/three@0.160.0/examples/jsm/libs/draco/gltf/");
+      draco.setDecoderConfig({ type: "js" });
+      this.dracoLoader = draco;
+    } catch (e) { console.warn("Draco decoder unavailable:", e); }
+    try {
+      const { KTX2Loader } = await import("three/addons/loaders/KTX2Loader.js");
+      const ktx2 = new KTX2Loader();
+      ktx2.setTranscoderPath("https://unpkg.com/three@0.160.0/examples/jsm/libs/basis/");
+      this.ktx2Loader = ktx2;
+    } catch (e) { console.warn("KTX2 decoder unavailable:", e); }
+    try {
+      const { MeshoptDecoder } = await import("three/addons/libs/meshopt_decoder.module.js");
+      this.meshopt = MeshoptDecoder;
+    } catch (e) { console.warn("Meshopt decoder unavailable:", e); }
+    this._envReady = RoomEnvironment;
+    this.THREE = THREE;
+    const el = this.mount.current;
+    if (!el) return;
+    const w = el.clientWidth || 800, h = el.clientHeight || 500;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(w, h);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.06;
+    while (el.firstChild) el.removeChild(el.firstChild);
+    el.appendChild(renderer.domElement);
+    this.renderer = renderer;
+    if (this.ktx2Loader) this.ktx2Loader.detectSupport(renderer);
+    renderer.domElement.addEventListener("webglcontextlost", (ev) => {
+      ev.preventDefault();
+      cancelAnimationFrame(this._raf);
+      if (this._ro) this._ro.disconnect();
+      this._lastW = this._lastH = 0;
+      setTimeout(() => this.initThree().catch(e => console.error("re-init failed", e)), 60);
+    });
+
+    const scene = new THREE.Scene();
+    this.scene = scene;
+    const camera = new THREE.PerspectiveCamera(28, w / h, 0.1, 200);
+    camera.position.set(7.5, 5.6, 8.2);
+    this.camera = camera;
+
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa39c, 1.0));
+    const key = new THREE.DirectionalLight(0xfffaf2, 1.75);
+    key.position.set(5.4, 9.2, 6.6);
+    key.castShadow = true;
+    key.shadow.mapSize.set(2048, 2048);
+    key.shadow.radius = 4;
+    key.shadow.bias = -0.0004;
+    Object.assign(key.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 0.5, far: 40 });
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0x9fb2bd, 0.36);
+    fill.position.set(-7, 4, -5);
+    scene.add(fill);
+    const rim = new THREE.DirectionalLight(0xffffff, 0.22);
+    rim.position.set(-3, 2.4, -6);
+    scene.add(rim);
+    const spec1 = new THREE.PointLight(0xffffff, 26, 24, 2);
+    spec1.position.set(-3.4, 5.2, 4.2);
+    scene.add(spec1);
+    const spec2 = new THREE.PointLight(0xdfe9f2, 14, 22, 2);
+    spec2.position.set(4.6, 2.2, -3.6);
+    scene.add(spec2);
+    // Lights must also see layer 1 or the selection overlay pass renders unlit.
+    scene.traverse(o => { if (o.isLight) o.layers.enable(1); });
+    if (this._envReady) {
+      const pmrem = new THREE.PMREMGenerator(renderer);
+      pmrem.compileEquirectangularShader();
+      scene.environment = pmrem.fromScene(new this._envReady(), 0.04).texture;
+      scene.environmentIntensity = 0.75;
+    }
+
+    const catcher = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.19 }));
+    catcher.rotation.x = -Math.PI / 2;
+    catcher.position.y = -1.3;
+    catcher.receiveShadow = true;
+    scene.add(catcher);
+    this.shadowCatcher = catcher;
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 4;
+    controls.maxDistance = 22;
+    // Full vertical sweep so the detail can be inspected from underneath;
+    // stops just short of the poles to keep the orbit from flipping.
+    controls.minPolarAngle = 0.02;
+    controls.maxPolarAngle = Math.PI - 0.02;
+    // One finger orbits, two fingers pan and pinch-dolly — the same reach the
+    // mouse has, and the zoom slider follows either through the change handler.
+    controls.touches = { ONE: THREE.TOUCH.ROTATE, TWO: THREE.TOUCH.DOLLY_PAN };
+    controls.rotateSpeed = 0.85;
+    controls.zoomToCursor = false;
+    controls.target.set(0, 0.2, 0);
+    this.controls = controls;
+    controls.addEventListener("change", () => {
+      if (this._snapping) return;
+      const dist = camera.position.distanceTo(controls.target);
+      const z = Math.round(100 * (1 - (dist - 4) / 18));
+      if (Math.abs(z - this.state.zoom) > 1) this.setState({ zoom: Math.max(0, Math.min(100, z)) });
+    });
+
+    this.bindPicking(renderer.domElement);
+    this.loadModel();
+    this.setZoom(this.state.zoom, true);
+    this.setState({ ready: true });
+
+    this.resize = () => {
+      const W = el.clientWidth, H = el.clientHeight;
+      if (!W || !H) return;
+      if (this._lastW === W && this._lastH === H) return;
+      this._lastW = W; this._lastH = H;
+      camera.aspect = W / H;
+      camera.updateProjectionMatrix();
+      renderer.setSize(W, H);
+      renderer.domElement.style.width = W + "px";
+      renderer.domElement.style.height = H + "px";
+    };
+    this.resize();
+    requestAnimationFrame(this.resize);
+    this._onKey = (e) => {
+      if (e.key !== "d" && e.key !== "D") return;
+      const el = e.target;
+      if (el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.isContentEditable)) return;
+      this.setState(s => ({ showDiag: !s.showDiag }));
+    };
+    window.addEventListener("keydown", this._onKey);
+    this._ro = new ResizeObserver(() => this.resize());
+    this._ro.observe(el);
+
+    let sized = 0;
+    const loop = () => {
+      this._raf = requestAnimationFrame(loop);
+      if (sized < 30) { sized++; this.resize(); }
+      this.tickSnap();
+      this.tickHover();
+      if (this.mixer) {
+        const now = performance.now();
+        this.mixer.update(Math.min(0.05, (now - (this._mixT || now)) / 1000));
+        this._mixT = now;
+      }
+      controls.autoRotate = !!this.props.autoRotate;
+      controls.autoRotateSpeed = 0.6;
+      controls.update();
+      // The shadow plane would black out the view once the camera drops below
+      // it, so it only exists while looking from above.
+      if (this.shadowCatcher) this.shadowCatcher.visible = camera.position.y > this.shadowCatcher.position.y + 0.02;
+      renderer.render(scene, camera);
+      // Overlay pass: the selected part only, on a cleared depth buffer.
+      if (this._selLayer) {
+        const auto = renderer.autoClear;
+        renderer.autoClear = false;
+        renderer.clearDepth();
+        camera.layers.set(1);
+        renderer.render(scene, camera);
+        camera.layers.set(0);
+        renderer.autoClear = auto;
+      }
+    };
+    loop();
+  }
+
+  mat(color, opts) {
+    return new this.THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.88, metalness: 0.08 }, opts || {}));
+  }
+  box(w, h, d, material, x, y, z, group) {
+    const m = new this.THREE.Mesh(new this.THREE.BoxGeometry(w, h, d), material || this.mat(0xffffff));
+    m.position.set(x, y, z);
+    m.castShadow = true; m.receiveShadow = true;
+    group.add(m);
+    return m;
+  }
+
+  buildModel() {
+    const THREE = this.THREE;
+    const root = new THREE.Group();
+    this.root = root;
+    this.scene.add(root);
+    // No built-in model: the viewer starts empty until a .glb is imported.
+  }
+
+  applyWire() {
+    if (!this.root) return;
+    this.root.traverse(o => { if (o.isMesh && o.material.wireframe !== undefined) o.material.wireframe = this.state.wire; });
+  }
+
+  setZoom(v, silent) {
+    if (!this.camera) return;
+    const t = this.controls.target;
+    const dist = 4 + (1 - v / 100) * 18;
+    const dir = this.camera.position.clone().sub(t).normalize();
+    this._snapping = true;
+    this.camera.position.copy(t.clone().add(dir.multiplyScalar(dist)));
+    this._snapping = false;
+    if (!silent) this.setState({ zoom: v });
+  }
+
+  snap(pos, instant) {
+    if (!this.camera) return;
+    const t = this.controls.target, dist = this.camera.position.distanceTo(t);
+    const to = new this.THREE.Vector3(...pos).normalize().multiplyScalar(dist);
+    if (instant) {
+      this._snapping = true;
+      this.camera.position.copy(t.clone().add(to));
+      this.camera.lookAt(t);
+      this._snapping = false;
+      return;
+    }
+    this._anim = { from: this.camera.position.clone().sub(t), to, t0: performance.now(), dur: 520 };
+  }
+
+  tickSnap() {
+    const a = this._anim;
+    if (!a) return;
+    const k = Math.min(1, (performance.now() - a.t0) / a.dur);
+    const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; // easeInOutCubic
+    const t = this.controls.target;
+    const off = new this.THREE.Vector3().copy(a.from).lerp(a.to, e);
+    // keep radius steady while the direction eases
+    off.normalize().multiplyScalar(a.from.length() * (1 - e) + a.to.length() * e);
+    this._snapping = true;
+    this.camera.position.copy(t.clone().add(off));
+    this.camera.lookAt(t);
+    this.controls.update();
+    this._snapping = false;
+    if (k >= 1) this._anim = null;
+  }
+
+  // ---- generic model loading -------------------------------------------
+  // MODELS[].url may point at a .glb; when absent the built-in placeholder
+  // geometry is used. Nothing below knows what the model actually is.
+
+  static normKey(s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]/g, ""); }
+
+  // Model-level description comes from the file's own glTF asset extras, so an
+  // imported model self-describes exactly like a registered one. Recognised
+  // keys (case/separator-insensitive): name, code, desc/description, supplier,
+  // host, contact, phone, email, sheet, sheetTitle, sheetMeta.
+  static SPEC_KEYS = ["name","code","desc","description","supplier","host","contact","phone","email","sheet","sheettitle","sheetmeta"];
+
+  static specFromAsset(gltf) {
+    const out = {};
+    const ex = (gltf && ((gltf.asset && gltf.asset.extras) || (gltf.parser && gltf.parser.json && gltf.parser.json.asset && gltf.parser.json.asset.extras))) || null;
+    if (!ex) return out;
+    const canon = { description: "desc", sheettitle: "sheetTitle", sheetmeta: "sheetMeta" };
+    for (const k of Object.keys(ex)) {
+      const n = k.replace(/[_\s-]/g, "").toLowerCase();
+      if (Component.SPEC_KEYS.indexOf(n) < 0) continue;
+      const v = ex[k];
+      if (v == null || String(v).trim() === "") continue;
+      out[canon[n] || n] = String(v);
+    }
+    return out;
+  }
+
+  static dataFor(code) {
+    const all = (typeof window !== "undefined" && window.PRODUCT_DATA) || {};
+    return all[code] || {};
+  }
+
+  static componentInfo(code, name) {
+    const comps = Component.dataFor(code).components || {};
+    const want = Component.normKey(name);
+    for (const k in comps) if (Component.normKey(k) === want) return comps[k];
+    return null;
+  }
+
+  async loadModel() {
+    const spec = Component.MODELS[this.state.model];
+    this.clearModel();
+    if (spec.buffer || spec.url) {
+      try {
+        const Loader = this.GLTFLoader ||
+          (await import("three/addons/loaders/GLTFLoader.js")).GLTFLoader;
+        const loader = new Loader();
+        if (this.dracoLoader) loader.setDRACOLoader(this.dracoLoader);
+        if (this.ktx2Loader) loader.setKTX2Loader(this.ktx2Loader);
+        if (this.meshopt) loader.setMeshoptDecoder(this.meshopt);
+        const gltf = spec.buffer
+          ? await new Promise((res, rej) => loader.parse(spec.buffer, "", res, rej))
+          : await loader.loadAsync(spec.url);
+        const root = new this.THREE.Group();
+        root.add(gltf.scene);
+        this.scene.add(root);
+        this.root = root;
+        this.fitModel(root);
+        this.isolateMaterials(root);
+        this.polishModel(root);
+        Object.assign(spec, Component.specFromAsset(gltf));
+        this.buildStages(gltf);
+        if (this.state.loadError) this.setState({ loadError: "" });
+      } catch (err) {
+        console.error("GLB load failed:", err);
+        this.setState({ loadError: (err && err.message) ? String(err.message).slice(0, 140) : "This file could not be read as a GLB." });
+        this.buildModel();
+        this.buildStages(null);
+      }
+    } else {
+      this.buildModel();
+      this.buildStages(null);
+    }
+    this.indexComponents();
+    this.applyWire();
+  }
+
+  clearModel() {
+    this.setSelection(null);
+    this._hover = null;
+    this.components = [];
+    if (this.mixer) { try { this.mixer.stopAllAction(); } catch (e) {} }
+    this.mixer = null;
+    this.stageClips = null;
+    this.stageGroups = null;
+    if (!this.root) return;
+    this.root.traverse(o => {
+      if (!o.isMesh) return;
+      o.geometry && o.geometry.dispose();
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach(m => m && m.dispose && m.dispose());
+    });
+    this.scene.remove(this.root);
+    this.root = null;
+  }
+
+  // Normalise any imported model into the viewer's working volume.
+  fitModel(root) {
+    const THREE = this.THREE;
+    const box = new THREE.Box3().setFromObject(root);
+    const size = box.getSize(new THREE.Vector3());
+    const center = box.getCenter(new THREE.Vector3());
+    const span = Math.max(size.x, size.y, size.z) || 1;
+    const k = 3.2 / span;
+    root.scale.setScalar(k);
+    root.position.set(-center.x * k, -box.min.y * k - 1.3, -center.z * k);
+    root.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+  }
+
+  // Walk the scene graph and register the top-most NAMED nodes that contain
+  // geometry as the selectable components. Works for any GLB naming scheme.
+  // Stages come from the GLB itself, in this order of preference:
+  //   Stages come ONLY from each object's buildStageId / buildStageName /
+  //   buildStageOrder properties. Objects with no buildStageId are held to
+  //   the final stage. Object names are never used to infer staging.
+  buildStages(gltf) {
+    if (this.mixer) { try { this.mixer.stopAllAction(); } catch (e) {} }
+    this.mixer = null;
+    this.stageClips = null;
+    this.stageGroups = null;
+    this.stageExclusive = false;
+
+    const clips = (gltf && gltf.animations) || [];
+    const hasGeom = (n) => { let h = false; n.traverse(o => { if (o.isMesh) h = true; }); return h; };
+    const generic = (n) => !n.name || /^(scene|rootnode|root|group|node|object|mesh|empty|collection|armature)[\s_.\-]*\d*$/i.test(n.name);
+
+    // The outermost band of meaningful named nodes — stages and components both
+    // live here, so it is the one place worth inspecting.
+    const band = (node, depth) => {
+      const out = [];
+      for (const child of (node.children || [])) {
+        if (!hasGeom(child)) continue;
+        if (!generic(child)) out.push(child);
+        else if (depth < 10) out.push.apply(out, band(child, depth + 1));
+      }
+      return out;
+    };
+    const top = this.root ? band(this.root, 0) : [];
+    this.helperNodes = [];
+    if (this.root) this.root.traverse(n => { if (n.name && /^__/.test(n.name)) this.helperNodes.push(n); });
+    const tree = [];
+    const dump = (n, d) => {
+      if (d > 3) return;
+      const kids = (n.children || []).length;
+      tree.push("  ".repeat(d) + (n.name || "(unnamed)") + " · " + n.type + (kids ? " · " + kids + " children" : ""));
+      (n.children || []).forEach(c => dump(c, d + 1));
+    };
+    if (this.root) (this.root.children || []).forEach(c => dump(c, 0));
+    const diag = { topLevelNodes: top.map(n => n.name + " [" + (n.children || []).length + " children]"),
+                   clips: clips.map(c => c.name), scenes: (gltf && gltf.scenes || []).length, tree };
+    const finish = (resolved, groups, names, startAtEnd) => {
+      diag.resolved = resolved;
+      diag.count = names.length;
+      if (typeof window !== "undefined") window.__viewerStages = diag;
+      console.log("[viewer] stages:", diag);
+      this.diag = diag;
+      this.stageGroups = groups;
+      const start = startAtEnd ? names.length : 1;
+      this.setState({ stage: start, stageCount: names.length, stageNames: names },
+        () => this.applyStage(start));
+    };
+
+    // Assembly stages come from three properties attached to each model
+    // object and surfaced by the loader as userData (glTF "extras"):
+    //   buildStageId    – which stage the object belongs to (grouping key)
+    //   buildStageName  – the label shown in the stepper
+    //   buildStageOrder – the stage's position in the sequence
+    // Nothing is inferred from object names, hierarchy, or geometry.
+    if (this.root) {
+      const prop = (n, key) => {
+        const d = n.userData || {};
+        for (const k of Object.keys(d)) {
+          if (k.replace(/[_\s-]/g, "").toLowerCase() === key &&
+              d[k] != null && String(d[k]).trim() !== "") return d[k];
+        }
+        return null;
+      };
+      const up = (n, key) => { let p = n; while (p) { const v = prop(p, key); if (v != null) return v; p = p.parent; } return null; };
+
+      const byId = new Map();
+      this.root.traverse(n => {
+        if (n === this.root || !hasGeom(n)) return;
+        if (n.name && /^__/.test(n.name)) return; // viewer-owned helpers (grid, lights)
+        const id = String(up(n, "buildstageid") ?? "").trim();
+        if (!id) return;
+        // Claim only the outermost node covered by a given id.
+        let p = n.parent, nested = false;
+        while (p && p !== this.root) {
+          if (String(up(p, "buildstageid") ?? "").trim() === id) { nested = true; break; }
+          p = p.parent;
+        }
+        if (nested) return;
+        if (!byId.has(id)) byId.set(id, { nodes: [], name: null, order: null });
+        const e = byId.get(id);
+        e.nodes.push(n);
+        if (e.name == null) { const v = up(n, "buildstagename"); if (v != null) e.name = String(v); }
+        if (e.order == null) {
+          const v = up(n, "buildstageorder");
+          if (v != null && String(v).trim() !== "" && !isNaN(Number(v))) e.order = Number(v);
+        }
+      });
+
+      if (byId.size) {
+        const ids = Array.from(byId.keys());
+        // buildStageOrder decides the sequence; ids lacking it fall in after
+        // the ordered ones, keeping their natural order.
+        ids.sort((a, b) => {
+          const oa = byId.get(a).order, ob = byId.get(b).order;
+          if (oa != null && ob != null && oa !== ob) return oa - ob;
+          if (oa != null && ob == null) return -1;
+          if (oa == null && ob != null) return 1;
+          return String(a).localeCompare(String(b), undefined, { numeric: true });
+        });
+        const groups = ids.map((id, i) => ({ n: i + 1, id, nodes: byId.get(id).nodes }));
+        this.deferStrays(groups);
+        this.attachHelpers(groups);
+        this.collectUnstaged(groups);
+        diag.stageIds = ids.map(id => {
+          const e = byId.get(id);
+          return id + (e.order != null ? " (order " + e.order + ")" : " (no order)") +
+                 (e.name ? " \u2192 " + e.name : " (no name)");
+        });
+        diag.stageMembership = groups.map(g => g.id + ": " + g.nodes.length + " parts");
+        diag.strays = this.strayReport || [];
+        finish("buildStageId", groups,
+          ids.map((id, i) => byId.get(id).name || "Stage " + (byId.get(id).order ?? i + 1)), true);
+        return;
+      }
+    }
+
+    const builtIn = !gltf ? 3 : 0;
+    diag.resolved = builtIn ? "built-in" : "none";
+    diag.count = builtIn;
+    if (typeof window !== "undefined") window.__viewerStages = diag;
+    console.log("[viewer] stages:", diag);
+    this.diag = diag;
+    this.setState({ stage: 1, stageCount: builtIn, stageNames: [] });
+  }
+
+  // Press "D" over the viewport for a readout of what the loader found.
+  diagText() {
+    const d = this.diag;
+    if (!d) return "No model loaded.";
+    const lines = [
+      "stages resolved by: " + d.resolved,
+      d.stageIds ? "build stages: " + d.stageIds.join("  |  ") : "no buildStageId on any object \u2014 stepper hidden",
+      "stage count: " + d.count,
+      "animation clips: " + (d.clips.length ? d.clips.join(", ") : "none"),
+      "glTF scenes: " + d.scenes,
+      "components indexed: " + (this.components || []).length,
+      (d.stageMembership || []).join("  |  "),
+      (d.strays || []).length ? "parts without an id, held to the last stage: " + d.strays.join(", ") : "",
+      "",
+      "scene graph:"
+    ];
+    return lines.concat(d.tree || []).join("\n");
+  }
+
+  // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
+  // Strip the exporter's id, drop the stage prefix, collapse the duplicated
+  // half most exporters append, and title-case what is left.
+  static prettyName(raw) {
+    let s = String(raw || "").replace(/[_\s-]*\d{4,}$/, "");
+    s = s.replace(/(?:^|[_\s-])(?:step|stage|phase|seq)[_\s-]*0*\d+[_\s-]*-?[_\s-]*/gi, " ");
+    s = s.replace(/[_]+/g, " ").replace(/\s+/g, " ").trim();
+    let w = s.split(" ").filter(Boolean);
+    if (w.length > 1 && w.length % 2 === 0) {
+      const h = w.length / 2;
+      if (w.slice(0, h).join(" ").toLowerCase() === w.slice(h).join(" ").toLowerCase()) w = w.slice(0, h);
+    }
+    for (let k = Math.ceil(w.length / 2); k < w.length; k++) {
+      const head = w.slice(0, k).map(x => x.toLowerCase());
+      const tail = w.slice(k).map(x => x.toLowerCase()).filter(x => x !== "-");
+      if (tail.length && tail.every(x => head.indexOf(x) > -1)) { w = w.slice(0, k); break; }
+    }
+    return w.map(x => x.length <= 2 ? x.toUpperCase()
+      : x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()).join(" ");
+  }
+
+  // Objects with no buildStageId are not part of the declared sequence.
+  // They are held back to the final stage so they never appear before the
+  // geometry that supports them — no name or geometry guessing is done.
+  deferStrays(groups) {
+    const claimed = new Set();
+    groups.forEach(g => g.nodes.forEach(n => claimed.add(n)));
+    const last = groups.length - 1;
+    this.strayReport = [];
+    this.root.traverse(n => {
+      if (n === this.root || claimed.has(n)) return;
+      if (n.name && /^__/.test(n.name)) return;
+      let p = n.parent, inside = false;
+      while (p) { if (claimed.has(p) || (p.name && /^__/.test(p.name))) { inside = true; break; } p = p.parent; }
+      if (inside) return;
+      // A node that CONTAINS claimed geometry is a wrapper (the glTF scene
+      // root, a collection), not a part — switching it would blank the model.
+      let wraps = false, geom = false;
+      n.traverse(o => { if (o !== n && claimed.has(o)) wraps = true; if (o.isMesh) geom = true; });
+      if (wraps || !geom) return;
+      groups[last].nodes.push(n);
+      this.strayReport.push((n.name || "(unnamed)") + " \u2192 " + groups[last].id + " (no buildStageId)");
+    });
+  }
+
+  isAncestor(a, b) { let p = b.parent; while (p) { if (p === a) return true; p = p.parent; } return false; }
+
+  // Edge overlays exported alongside the geometry (nodes whose names start "__")
+  // are matched to the staged object they trace, by bounding box, and folded
+  // into that stage's node list so they switch on and off with it. An overlay
+  // that spans several parts is broken down into its children and matched
+  // piece by piece; anything that still cannot be tied to one stage is treated
+  // as final-stage geometry rather than shown over an incomplete assembly.
+  attachHelpers(groups) {
+    const THREE = this.THREE;
+    this.assignedHelpers = new Set();
+    this.freeHelpers = [];
+    if (!THREE || !this.root || !groups || !groups.length) return;
+
+    const box = (o) => { const b = new THREE.Box3(); b.setFromObject(o); return b.isEmpty() ? null : b; };
+    const vol = (b) => { const s = b.getSize(new THREE.Vector3()); return Math.max(1e-9, s.x * s.y * s.z); };
+    const staged = [];
+    groups.forEach(g => (g.nodes || [g.node]).forEach(node => {
+      if (!node) return;
+      const b = box(node);
+      if (b) staged.push({ g, node, b, v: vol(b) });
+    }));
+    if (!staged.length) return;
+
+    const match = (unit, ub) => {
+      let best = null, bestScore = Infinity;
+      staged.forEach(s => {
+        const inter = s.b.clone().intersect(ub);
+        if (inter.isEmpty()) return;
+        const covered = vol(inter) / vol(ub);
+        if (covered < 0.75) return;
+        const score = (1 - covered) + Math.abs(Math.log(s.v / vol(ub))) * 0.25;
+        if (score < bestScore) { bestScore = score; best = s; }
+      });
+      return best;
+    };
+
+    // Try a node as one unit; if it fits no single stage, split it and try its
+    // children, so a combined overlay still lands on the right stages.
+    const place = (node, depth) => {
+      const ub = box(node);
+      if (!ub) return;
+      const hit = match(node, ub);
+      if (hit) { hit.g.nodes.push(node); this.assignedHelpers.add(node); return; }
+      if (depth < 8 && node.children && node.children.length) {
+        node.children.forEach(c => place(c, depth + 1));
+        return;
+      }
+      this.freeHelpers.push(node);
+    };
+
+    const helpers = [];
+    this.root.traverse(n => { if (n.name && /^__/.test(n.name)) helpers.push(n); });
+    helpers.forEach(h => {
+      let p = h.parent, inside = false;
+      while (p && p !== this.root) { if (staged.some(s => s.node === p) || (h !== p && p.name && /^__/.test(p.name))) { inside = true; break; } p = p.parent; }
+      if (inside) return;
+      place(h, 0);
+    });
+  }
+
+  // Collected once per model: outermost geometry that no stage claimed. Wrappers
+  // that contain staged geometry are skipped — hiding one would blank a stage.
+  collectUnstaged(groups) {
+    this.unstagedNodes = [];
+    if (!this.root || !groups || !groups.length) return;
+    const claimed = new Set();
+    groups.forEach(g => (g.nodes || [g.node]).forEach(node => { if (node) node.traverse(o => claimed.add(o)); }));
+    const free = new Set(this.freeHelpers || []);
+    this.root.traverse(n => {
+      if (n === this.root || claimed.has(n) || free.has(n)) return;
+      let p = n.parent, covered = false;
+      while (p) { if (claimed.has(p) || free.has(p)) { covered = true; break; } p = p.parent; }
+      if (covered) return;
+      let wraps = false, geom = false;
+      n.traverse(o => { if (o !== n && (claimed.has(o) || free.has(o))) wraps = true; if (o.isMesh) geom = true; });
+      if (wraps || !geom) return;
+      this.unstagedNodes.push(n);
+    });
+  }
+
+  applyStage(n) {
+    if (this.stageClips && this.mixer) {
+      this.mixer.stopAllAction();
+      const clip = this.stageClips[n - 1];
+      if (clip) {
+        const act = this.mixer.clipAction(clip);
+        act.reset();
+        act.clampWhenFinished = true;
+        act.setLoop(this.THREE.LoopOnce, 1);
+        act.play();
+      }
+      return;
+    }
+    if (this.stageGroups) {
+      const cur = this.stageGroups[n - 1];
+      this.stageGroups.forEach(g => {
+        const on = this.stageExclusive ? g === cur : g.n <= cur.n;
+        (g.nodes || [g.node]).forEach(node => { if (node) node.visible = on; });
+      });
+      // Helper geometry matched to a stage is already in that stage's node list.
+      // Overlays that belong to no single stage show only on the final stage,
+      // so no edges appear over parts that have not been built yet.
+      const last = n >= this.stageGroups.length;
+      (this.freeHelpers || []).forEach(node => { node.visible = last; });
+      // Anything the stage pass never touched — geometry that carries no
+      // buildStageId and sits outside every group — would otherwise stay
+      // visible through the whole sequence and read as an out-of-order part.
+      // It follows the same rule as unmatched overlays: final stage only.
+      (this.unstagedNodes || []).forEach(node => { node.visible = last; });
+      this.indexComponents();
+    }
+  }
+
+  indexComponents() {
+    const hasGeometry = (n) => { let has = false; n.traverse(o => { if (o.isMesh && o.visible) has = true; }); return has; };
+    // Exporter-generated wrapper names carry no meaning — walk straight through.
+    const generic = (n) => !n.name || /^(scene|rootnode|root|group|node|object|mesh|empty|collection|armature)[\s_.\-]*\d*$/i.test(n.name);
+    const collect = (node, depth) => {
+      const out = [];
+      for (const child of node.children) {
+        if (!child.visible || !hasGeometry(child)) continue;
+        // Exporter helper geometry (edge overlays, guides) is not a component.
+        if (child.name && /^__/.test(child.name)) continue;
+        if (!generic(child)) out.push(child);
+        else if (depth < 10) out.push.apply(out, collect(child, depth + 1));
+      }
+      return out;
+    };
+    let nodes = this.root ? collect(this.root, 0) : [];
+    // A model exported as one named wrapper yields a single "component"; keep
+    // descending until the parts inside it are exposed.
+    let guard = 0;
+    while (nodes.length === 1 && nodes[0].children && nodes[0].children.length && guard++ < 10) {
+      const inner = collect(nodes[0], 0);
+      if (!inner.length) break;
+      nodes = inner;
+    }
+    const seen = new Map();
+    const found = nodes.map(node => {
+      const base = Component.prettyName(node.name) || "Part";
+      const k = base.toLowerCase();
+      const n = (seen.get(k) || 0) + 1;
+      seen.set(k, n);
+      return { name: n > 1 ? base + " " + n : base, node };
+    });
+    this.components = found;
+    const names = found.map(c => c.name);
+    if (typeof window !== "undefined") window.__viewerComponents = names;
+    console.log("[viewer] components in \u201c" + Component.MODELS[this.state.model].name + "\u201d:", names);
+    this.setState({ componentNames: names, selected: null });
+  }
+
+  // ---- picking ----------------------------------------------------------
+
+  componentAt(ev) {
+    if (!this.renderer || !this.components || !this.components.length) return null;
+    const r = this.renderer.domElement.getBoundingClientRect();
+    const ndc = new this.THREE.Vector2(
+      ((ev.clientX - r.left) / r.width) * 2 - 1,
+      -((ev.clientY - r.top) / r.height) * 2 + 1
+    );
+    this._ray = this._ray || new this.THREE.Raycaster();
+    this._ray.setFromCamera(ndc, this.camera);
+    const hits = this._ray.intersectObjects(this.components.map(c => c.node), true);
+    if (!hits.length) return null;
+    let o = hits[0].object;
+    while (o) {
+      const match = this.components.find(c => c.node === o);
+      if (match) return match;
+      o = o.parent;
+    }
+    return null;
+  }
+
+  // The hover/selection glow is written onto materials, and glTF files reuse one
+  // material across many objects — so tinting one part lit up every object that
+  // shared its material. Each mesh gets its own material instance (textures are
+  // still shared, so this costs nothing to draw) and the glow stays local.
+  // Render polish applied to every model on load: full-resolution textures,
+  // consistent shadow participation, environment response, and — only when the
+  // file brings no edge overlay of its own — a crisp architectural outline
+  // generated per mesh. The outline is parented to its mesh, so it inherits
+  // that mesh's stage visibility for free.
+  polishModel(root) {
+    const THREE = this.THREE;
+    if (!THREE || !root) return;
+    const maxAniso = this.renderer ? this.renderer.capabilities.getMaxAnisotropy() : 1;
+    const authored = [];
+    root.traverse(n => { if (n.name && /^__/.test(n.name)) authored.push(n); });
+    const meshes = [];
+    root.traverse(o => { if (o.isMesh) meshes.push(o); });
+
+    meshes.forEach(o => {
+      o.castShadow = true;
+      o.receiveShadow = true;
+      if (o.geometry && !o.geometry.attributes.normal) o.geometry.computeVertexNormals();
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach(m => {
+        if (!m) return;
+        ["map","normalMap","roughnessMap","metalnessMap","aoMap","emissiveMap"].forEach(k => {
+          const t = m[k];
+          if (t && t.anisotropy !== maxAniso) { t.anisotropy = maxAniso; t.needsUpdate = true; }
+        });
+        if (m.envMapIntensity !== undefined) m.envMapIntensity = 1.15;
+        // Mirror-flat surfaces read as plastic under studio light; give bare
+        // materials a touch of tooth so form is legible.
+        if (m.roughness !== undefined && m.roughness < 0.08 && !m.roughnessMap) m.roughness = 0.28;
+        m.needsUpdate = true;
+      });
+    });
+
+    this.autoEdges = [];
+    if (authored.length) return;   // the export already carries its own linework
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x1d2420, transparent: true, opacity: 0.34, depthWrite: false });
+    this.autoEdgeMat = lineMat;
+    meshes.forEach(o => {
+      if (!o.geometry || !o.geometry.attributes.position) return;
+      if (o.geometry.attributes.position.count > 200000) return;   // skip dense scans
+      let edges;
+      try { edges = new THREE.EdgesGeometry(o.geometry, 28); } catch (e) { return; }
+      if (!edges.attributes.position || edges.attributes.position.count < 2) return;
+      const line = new THREE.LineSegments(edges, lineMat);
+      line.name = "__auto_edges";
+      line.raycast = () => {};        // never pickable
+      line.renderOrder = 2;
+      o.add(line);
+      this.autoEdges.push(line);
+    });
+  }
+
+  isolateMaterials(root) {
+    if (!root) return;
+    const seen = new Set();
+    root.traverse(o => {
+      if (!o.isMesh || !o.material) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      const out = mats.map(m => {
+        if (!m) return m;
+        if (!seen.has(m)) { seen.add(m); return m; }
+        const c = m.clone();
+        c.userData = Object.assign({}, m.userData);
+        seen.add(c);
+        return c;
+      });
+      o.material = Array.isArray(o.material) ? out : out[0];
+    });
+  }
+
+  tint(comp, color, intensity) {
+    if (!comp) return;
+    comp.node.traverse(o => {
+      if (!o.isMesh || !o.material) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach(m => {
+        if (!m.emissive) return;
+        if (!m.userData.__origEmissive) m.userData.__origEmissive = m.emissive.clone();
+        if (m.userData.__origIntensity === undefined) m.userData.__origIntensity = m.emissiveIntensity ?? 1;
+        if (color === null) {
+          m.emissive.copy(m.userData.__origEmissive);
+          m.emissiveIntensity = m.userData.__origIntensity;
+        } else {
+          m.emissive.set(color);
+          m.emissiveIntensity = intensity;
+        }
+      });
+    });
+  }
+
+  // Screen-space halftone ghost: unselected parts drop back to a translucent
+  // 45° dot screen so the picked component reads as solid.
+  ghostMaterial(src) {
+    const m = src.clone();
+    m.transparent = true;
+    m.depthWrite = false;
+    m.opacity = 0.24;
+    m.roughness = Math.min(1, (src.roughness ?? 0.6) + 0.25);
+    m.metalness = (src.metalness ?? 0) * 0.35;
+    if (m.color) m.color.set(0xa9aeab);
+    if (m.emissive) m.emissive.set(0x000000);
+    m.flatShading = src.flatShading;
+    m.needsUpdate = true;
+    return m;
+  }
+
+  meshGhost(o, on) {
+    if (!o.isMesh || !o.material) return;
+    if (on) {
+      if (o.userData.__solidMat) return;
+      o.userData.__solidMat = o.material;
+      o.material = Array.isArray(o.material)
+        ? o.material.map(m => this.ghostMaterial(m))
+        : this.ghostMaterial(o.material);
+      o.castShadow = false;
+      o.renderOrder = 0;
+    } else if (o.userData.__solidMat) {
+      const ghosts = Array.isArray(o.material) ? o.material : [o.material];
+      ghosts.forEach(m => m && m.dispose && m.dispose());
+      o.material = o.userData.__solidMat;
+      o.userData.__solidMat = null;
+      o.castShadow = true;
+      o.renderOrder = 0;
+    }
+  }
+
+  setGhost(comp, on) {
+    if (!comp) return;
+    comp.node.traverse(o => this.meshGhost(o, on));
+  }
+
+  // Ghosting is decided per mesh against the selected subtree, not by comparing
+  // component entries — so the picked part is always the solid one, whatever
+  // else in the model shares its material or overlaps it.
+  applyGhosting() {
+    if (!this.root) return;
+    const sel = this._selected;
+    const keep = new Set();
+    if (sel && sel.node) sel.node.traverse(o => { if (o.isMesh) keep.add(o); });
+    const helper = (o) => { let p = o; while (p) { if (p.name && /^__/.test(p.name)) return true; p = p.parent; } return false; };
+    this.root.traverse(o => {
+      if (!o.isMesh || !o.material || helper(o)) return;
+      this.meshGhost(o, !!sel && !keep.has(o));
+    });
+    // Outlines follow their mesh: crisp on the selection, faint on ghosts.
+    (this.autoEdges || []).forEach(l => {
+      const host = l.parent;
+      const dim = !!sel && host && !keep.has(host);
+      if (dim) {
+        if (l.material === this.autoEdgeMat) l.material = l.userData.__dimMat || (l.userData.__dimMat = this.autoEdgeMat.clone());
+        l.material.opacity = 0.1;
+      } else {
+        l.material = this.autoEdgeMat;
+        l.material.opacity = sel && host && keep.has(host) ? 0.5 : 0.34;
+      }
+    });
+  }
+
+  // The selection keeps normal depth testing — it self-occludes and shades like
+  // ordinary solid geometry. To read through parts that sit in front of it, it
+  // is drawn a second time on layer 1 over a cleared depth buffer, so the pass
+  // pops it forward without making it see-through.
+  // Source materials often declare alpha blending (glass, decals, exporter
+  // defaults). The overlay pass alone cannot make those read solid, so the
+  // selection's materials are forced opaque and restored on deselect.
+  forceOpaque(comp, on) {
+    if (!comp) return;
+    comp.node.traverse(o => {
+      if (!o.isMesh || !o.material) return;
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach(m => {
+        if (!m) return;
+        if (on) {
+          if (!m.userData.__alpha) m.userData.__alpha = { t: m.transparent, o: m.opacity, dw: m.depthWrite, at: m.alphaTest, bl: m.blending };
+          m.transparent = false; m.opacity = 1; m.depthWrite = true; m.alphaTest = 0;
+          m.needsUpdate = true;
+        } else if (m.userData.__alpha) {
+          const a = m.userData.__alpha;
+          m.transparent = a.t; m.opacity = a.o; m.depthWrite = a.dw; m.alphaTest = a.at; m.blending = a.bl;
+          m.userData.__alpha = null;
+          m.needsUpdate = true;
+        }
+      });
+    });
+  }
+
+  setFront(comp, on) {
+    if (!comp) return;
+    this.forceOpaque(comp, on);
+    comp.node.traverse(o => {
+      // Outlines are LineSegments, not meshes — they have to join the overlay
+      // pass too, or the redraw paints over the selection's own linework.
+      if ((!o.isMesh && !o.isLine) || !o.material) return;
+      o.renderOrder = on ? 3 : 0;
+      if (on) o.layers.enable(1); else o.layers.disable(1);
+      const mats = Array.isArray(o.material) ? o.material : [o.material];
+      mats.forEach(m => { if (m && m.depthTest !== true) { m.depthTest = true; m.needsUpdate = true; } });
+    });
+    this._selLayer = !!on;
+  }
+
+  setSelection(comp) {
+    if (this._selected === comp) return;
+    if (this._selected) { this.tint(this._selected, null); this.setFront(this._selected, false); }
+    this._selected = comp || null;
+    this.applyGhosting();
+    if (comp) { this.tint(comp, 0x2f5c49, 0.16); this.setFront(comp, true); }
+    this.setState({ selected: comp ? comp.name : null });
+  }
+
+  bindPicking(canvas) {
+    let down = null;
+    canvas.addEventListener("pointerdown", e => {
+      down = { x: e.clientX, y: e.clientY, t: performance.now(), touch: e.pointerType !== "mouse", multi: e.isPrimary === false };
+      // Long-press stands in for the D key on tablets and phones, which have
+      // no physical keyboard to reach the structure readout with.
+      clearTimeout(this._pressT);
+      if (down.touch) {
+        this._pressT = setTimeout(() => {
+          if (!down) return;
+          down = null;
+          this.setState(s => ({ showDiag: !s.showDiag }));
+        }, 650);
+      }
+    });
+    canvas.addEventListener("pointerup", e => {
+      clearTimeout(this._pressT);
+      if (!down) return;
+      const moved = Math.hypot(e.clientX - down.x, e.clientY - down.y);
+      const touch = down.touch, multi = down.multi;
+      down = null;
+      // A finger never lands as precisely as a cursor, so taps get more slop.
+      if (moved > (touch ? 11 : 4)) return;
+      if (multi) return;                       // second finger of a pinch
+      this.setSelection(this.componentAt(e));
+      if (touch) { this.clearHover(); canvas.style.cursor = ""; }
+    });
+    canvas.addEventListener("pointercancel", () => { clearTimeout(this._pressT); down = null; });
+    canvas.addEventListener("pointermove", e => {
+      clearTimeout(this._pressT);
+      // Touch has no hover: a moving finger is a drag, and glowing whatever it
+      // passes over would fight the orbit.
+      if (e.pointerType && e.pointerType !== "mouse") return;
+      if (e.buttons) return;
+      const c = this.componentAt(e);
+      canvas.style.cursor = c ? "pointer" : "";
+      if (c === this._hover) return;
+      if (this._hover && this._hover !== this._selected) {
+        this._fading = { comp: this._hover, k: this._hoverK || 0 };
+        this.tint(this._hover, 0x4e9e79, this._fading.k * 0.85);
+      }
+      this._hover = c;
+      this._hoverK = 0;
+    });
+    canvas.addEventListener("pointerleave", () => this.clearHover());
+  }
+
+  clearHover() {
+    if (this._hover && this._hover !== this._selected) this._fading = { comp: this._hover, k: this._hoverK || 0 };
+    this._hover = null;
+  }
+
+  // Eases the hover glow in and out instead of snapping it on.
+  tickHover() {
+    const now = performance.now();
+    const dt = Math.min(0.1, (now - (this._hoverT0 || now)) / 1000);
+    this._hoverT0 = now;
+    const rate = dt / 0.22;
+
+    const f = this._fading;
+    if (f) {
+      f.k = Math.max(0, f.k - rate);
+      if (f.comp === this._selected) { this._fading = null; }
+      else if (f.k <= 0) { this.tint(f.comp, null); this._fading = null; }
+      else this.tint(f.comp, 0x4e9e79, f.k * 0.85);
+    }
+
+    const h = this._hover;
+    if (!h || h === this._selected) return;
+    const k = Math.min(1, (this._hoverK || 0) + rate);
+    if (k === this._hoverK) return;
+    this._hoverK = k;
+    const e = k * k * (3 - 2 * k);
+    this.tint(h, 0x4e9e79, e * 0.85);
+  }
+
+  cycleComponent(dir) {
+    const list = this.components || [];
+    if (!list.length) return;
+    const at = list.indexOf(this._selected);
+    this.setSelection(list[(at + dir + list.length) % list.length]);
+  }
+
+  cycleStage(dir) {
+    const total = this.state.stageCount || 0;
+    if (total < 2) return;
+    const next = ((this.state.stage - 1 + dir + total) % total) + 1;
+    this.setState({ stage: next, stageShown: true }, () => this.applyStage(next));
+    clearTimeout(this._stageT);
+    this._stageT = setTimeout(() => this.setState({ stageShown: false }), 1500);
+  }
+
+  orbit(deg) {
+    if (!this.camera) return;
+    const t = this.controls.target;
+    const off = this.camera.position.clone().sub(t);
+    off.applyAxisAngle(new this.THREE.Vector3(0, 1, 0), deg * Math.PI / 180);
+    this._snapping = true;
+    this.camera.position.copy(t.clone().add(off));
+    this.camera.lookAt(t);
+    this._snapping = false;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const is2D = s.tool === "orbit" && !!(Component.MODELS[s.model] || Component.MODELS[0] || {}).sheet;
+    const spec = is2D ? Component.MODELS[1] : Component.MODELS[s.model];
+    const entry = Component.dataFor(spec.code);
+    const comp = is2D || !s.selected ? null : (Component.componentInfo(spec.code, s.selected) || {});
+    const info = Object.assign({}, spec, entry.default || {}, comp || {});
+    // A field only counts as assigned when it carries real content: blanks,
+    // placeholder dashes and "not specified" all read as missing.
+    const has = (v) => {
+      const s = String(v == null ? "" : v).trim();
+      return !!s && !/^[\u2013\u2014-]+$/.test(s) && !/^(n\/a|tbc|tbd|not specified|unknown)$/i.test(s);
+    };
+    const specRows = (info.specs || [])
+      .filter(r => r && has(r.label) && has(r.value))
+      .map((r, i) => ({ label: r.label, value: r.value, i }));
+    const q = String(s.query || "").trim().toLowerCase();
+    const filtered = Component.MODELS
+      .map((m, i) => ({ ...m, i }))
+      .filter(m => !q || m.name.toLowerCase().includes(q) || m.code.toLowerCase().includes(q));
+    const iconBtn = { display: "grid", placeItems: "center", width: 28, height: 28, padding: 0, background: "transparent", border: 0, cursor: "pointer", color: "#e2e6e3" };
+    return {
+      mountRef: this.mount,
+      zoom: s.zoom,
+      is2D,
+      is3D: !is2D,
+      // This variant is desktop-only, so the shared control sizes stay at
+      // their pointer values (the touch pass sizes them per device mode in the
+      // multi-device viewer).
+      isTouch: false,
+      tapH: 34,
+      pickerH: 38,
+      rowPad: "7px 8px",
+      closeSz: 18,
+      pwFont: "12px",
+      modelOpacity: is2D ? 0 : 1,
+      modelPointer: is2D ? "none" : "auto",
+      viewTitle: is2D ? "Balcony Threshold" : Component.MODELS[s.model].name,
+      viewMeta: is2D ? (spec.sheetMeta || "Drawing sheet") : (s.wire ? "Wireframe · Perspective" : "Shaded · Perspective"),
+      dimLabel: is2D ? "2D" : "3D",
+      dimBg: is2D ? "#3f6b58" : "#2b322e",
+      infoDesc: has(info.desc) ? info.desc : "",
+      infoScope: comp ? (info.title || s.selected) : (is2D ? "Whole detail" : "Whole model"),
+      hasSelection: !!comp,
+      hasSpecs: specRows.length > 0,
+      hasDesc: has(info.desc),
+      hasDocs: has(info.host) && has(info.slug),
+      hasSupplierName: has(info.supplier),
+      hasSupplier: has(info.supplier) || has(info.contact) || has(info.phone) || has(info.email),
+      hasContact: has(info.contact),
+      hasPhone: has(info.phone),
+      hasEmail: has(info.email),
+      specRows,
+      clearSelection: () => this.setSelection(null),
+      showInfo: !!comp && !is2D,
+      showPrompt: !comp || is2D,
+      promptLabel: is2D ? "2D detail" : "Get started",
+      promptTitle: is2D ? "Zoom and pan to inspect the drawing" : "Click on model components to view product information",
+      promptHint: is2D ? "Scroll to zoom, drag to move. Switch to 3D for product data." : "Hover to preview a part, click to isolate it, or click on the cycle icon above.",
+      loadError: s.loadError || "",
+      hasLoadError: !!s.loadError,
+      showDiag: !!s.showDiag,
+      diagText: this.diagText(),
+      hideDiag: () => this.setState({ showDiag: false }),
+      dismissLoadError: () => this.setState({ loadError: "" }),
+      hasChips: !is2D && (s.componentNames || []).length > 0,
+      componentChips: (s.componentNames || []).map(n => ({
+        name: n,
+        onPick: () => this.setSelection((this.components || []).find(c => c.name === n))
+      })),
+      infoManualHref: "https://" + info.host + "/docs/" + info.slug + "-install.pdf",
+      infoProductHref: "https://" + info.host + "/products/" + info.slug,
+      infoSupplier: info.supplier,
+      infoContact: info.contact,
+      infoPhone: info.phone,
+      infoEmail: info.email,
+      infoEmailHref: "mailto:" + info.email,
+      panWrapRef: this.panWrap,
+      panImgRef: this.panImg,
+      onPanReset: () => { this._pan = { x: 0, y: 0 }; this.setState({ zoom: 12 }); this.applyPan(true); },
+      iconBtn,
+      wireBtn: Object.assign({}, iconBtn, { color: s.wire ? "#ffffff" : "#e2e6e3" }),
+      boxBtn: { display: "grid", placeItems: "center", width: 24, height: 24, padding: 0, background: "transparent", border: "1px solid rgba(226,230,227,.7)", borderRadius: 2, cursor: "pointer", color: "#e2e6e3" },
+      arrowBtn: { width: 22, height: 22, display: "grid", placeItems: "center", padding: 0, background: "transparent", border: 0, cursor: "pointer", color: "#5f6763" },
+      three: this.THREE,
+      gizmoSize: 78,
+      getCamQuat: () => (this.camera ? this.camera.quaternion : null),
+      // Dragging the gizmo orbits the camera about the same target the
+      // viewport uses, so the two gestures stay in agreement.
+      onGizmoOrbit: (dx, dy) => {
+        const c = this.controls, cam = this.camera;
+        if (!c || !cam) return;
+        this._snapping = false;
+        const off = cam.position.clone().sub(c.target);
+        const r = off.length();
+        let theta = Math.atan2(off.x, off.z) - dx * 0.011;
+        let phi = Math.acos(Math.max(-1, Math.min(1, off.y / r))) + dy * 0.011;
+        phi = Math.max(c.minPolarAngle + 0.001, Math.min(c.maxPolarAngle - 0.001, phi));
+        cam.position.set(
+          c.target.x + r * Math.sin(phi) * Math.sin(theta),
+          c.target.y + r * Math.cos(phi),
+          c.target.z + r * Math.sin(phi) * Math.cos(theta)
+        );
+        cam.lookAt(c.target);
+        c.update();
+      },
+      onGizmoView: (name) => {
+        const dirs = {
+          front: [0, 0.02, 1], back: [0, 0.02, -1],
+          right: [1, 0.02, 0], left: [-1, 0.02, 0],
+          top: [0.001, 1, 0.001], bottom: [0.001, -1, 0.001],
+          iso: [1, 0.78, 1.1]
+        };
+        this.snap(dirs[name] || dirs.iso);
+      },
+      prev: () => this.cycleStage(-1),
+      next: () => this.cycleStage(1),
+      hiddenTools: [
+        is2D ? "prev,next,cycle,orbit" : ((s.stageCount || 0) < 2 ? "prev,next" : ""),
+        spec.sheet ? "" : "orbit"
+      ].filter(Boolean).join(","),
+      modelName: Component.MODELS[s.model].name,
+      pickerOpen: s.pickerOpen,
+      pickerArrow: s.pickerOpen ? "180deg" : "0deg",
+      query: s.query,
+      togglePicker: () => this.setState(p => ({ pickerOpen: !p.pickerOpen, query: "" })),
+      onQuery: (e) => this.setState({ query: e.target.value }),
+      onUpload: () => this.setState({ pickerOpen: false }),
+      noResults: filtered.length === 0,
+      modelResults: filtered.map(m => ({
+        name: m.name,
+        code: m.code,
+        bg: m.i === s.model ? "rgba(255,255,255,.045)" : "transparent",
+        dot: m.i === s.model ? "#4e8a71" : "rgba(255,255,255,.22)",
+        color: m.i === s.model ? "#e2e1df" : "rgba(255,255,255,.62)",
+        weight: m.i === s.model ? "600" : "500",
+        onPick: () => this.setState({ model: m.i, pickerOpen: false, query: "" }, () => this.loadModel())
+      })),
+      stageLabel: (s.stageNames && s.stageNames[s.stage - 1]) || ("Stage " + s.stage),
+      stageNum: s.stage < 10 ? "0" + s.stage : String(s.stage),
+      stageTotal: (s.stageCount || 0) < 10 ? "0" + (s.stageCount || 0) : String(s.stageCount || 0),
+      stageOpacity: s.stageShown ? "1" : "0",
+      stageShift: s.stageShown ? "0px" : "8px",
+      activeTool: s.tool,
+      onToolSelect: (id) => {
+        if (id === "cycle") this.cycleComponent(1);
+        else if (id === "prev") this.cycleStage(-1);
+        else if (id === "next") this.cycleStage(1);
+        else if (id === "cube") { this.setZoom(52, true); this.snap([1, 0.78, 1.1]); this.setState({ tool: "cube", zoom: 52 }); }
+        else if (id === "orbit") { this._pan = { x: 0, y: 0 }; this.setState({ tool: "orbit", zoom: 12 }); }
+      },
+      toggleWire: () => this.setState(p => ({ wire: !p.wire })),
+      resetView: () => { this.snap([1, 0.78, 1.1]); this.setZoom(52); },
+      viewIso: () => this.snap([1, 0.78, 1.1]),
+      viewTop: () => this.snap([0.001, 1, 0.001]),
+      viewLeft: () => this.orbit(-45),
+      viewRight: () => this.orbit(45),
+      onZoom: (e) => {
+        const v = Number(e.target.value);
+        if (is2D) this.setState({ zoom: v });
+        else this.setZoom(v);
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

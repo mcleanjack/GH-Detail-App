@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@300;400;500;600&amp;display=swap" rel="stylesheet">
+<script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
+<style>
+html,body{margin:0;min-height:100%;background:#9db0a6;font-family:'Barlow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+*{box-sizing:border-box}
+a{color:#2a2c2c}a:hover{color:#6b7a6f}
+input[type=range]{-webkit-appearance:none;appearance:none;background:transparent;accent-color:#454b48;color:#454b48}
+input[type=range]::-webkit-slider-runnable-track{height:1px;background:#454b48}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:11px;height:11px;border:0;border-radius:50%;background:#454b48;box-shadow:0 1px 2px rgba(0,0,0,.35);margin-top:-5px}
+input[type=range]::-moz-range-track{height:1px;background:#454b48}
+input[type=range]::-moz-range-thumb{width:11px;height:11px;border:0;border-radius:50%;background:#454b48;box-shadow:0 1px 2px rgba(0,0,0,.35)}
+input[type=range]::-ms-thumb{width:11px;height:11px;border:0;border-radius:50%;background:#454b48}
+input[type=range]:focus{outline:none}
+</style>
+</helmet>
+
+<div style="min-height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; padding: 56px; position: absolute; background: #9db0a6; left: -7px; top: -3px">
+<div style="position:relative;z-index:1;width:100%;max-width:1080px;aspect-ratio:16/9;border-radius:10px;background-color:#1e1e1d;border:3px solid #161615;overflow:hidden;display:flex;flex-direction:column;background-image:url(assets/graphite-grain.png),radial-gradient(ellipse 120% 130% at 16% -12%, #353533 0%, #242423 46%, #151514 100%);background-repeat:repeat,no-repeat;background-size:180px 180px,cover;background-blend-mode:overlay,normal;box-shadow:inset 0 0 14px 7px rgba(48,48,47,.95),inset 0 1px 0 rgba(255,255,255,.1),0 2px 4px rgba(0,0,0,.5),0 18px 34px rgba(0,0,0,.55),0 44px 90px rgba(0,0,0,.6),0 90px 150px rgba(0,0,0,.45)">
+
+
+
+<header style="height: 70px; flex: none; position: relative; display: flex; align-items: center; padding: 0; background-color: #242423; background-image: linear-gradient(180deg, rgba(255,255,255,.112) 0%, rgba(255,255,255,.035) 34%, rgba(255,255,255,0) 46%, rgba(255,255,255,.014) 100%),url(assets/graphite-grain.png),linear-gradient(128deg, #3a3a37 0%, #2e2e2c 36%, #1f1f1e 68%, #141413 100%); background-repeat: no-repeat,repeat,no-repeat; background-size: cover,130px 130px,cover; background-blend-mode: screen,soft-light,normal; box-shadow: inset 0 2px 5px rgba(0,0,0,.62),inset 0 10px 18px -8px rgba(0,0,0,.5),inset 2px 0 4px rgba(0,0,0,.35),inset -2px 0 4px rgba(0,0,0,.35),inset 0 -1px 0 rgba(176,141,87,.34),inset 0 1px 0 rgba(255,255,255,.1)">
+
+<div style="width:234px;flex:none;display:flex;flex-direction:column;align-items:center;gap:9px"><img src="assets/glenvill-logo.png" alt="Glenvill Homes" style="width: 200px; height: auto; display: block; opacity: 1; border-radius: 1px; image-rendering: -webkit-optimize-contrast; filter: brightness(1.16) contrast(1.2) drop-shadow(0 0 1px rgba(255,255,255,.4)) drop-shadow(0 0 5px rgba(255,255,255,.16))"></div><div style="flex:1;margin-left:3px;display:flex;align-items:center;justify-content:center">
+<dc-import name="Toolbar Buttons" size="lg" active-tool="{{ activeTool }}" on-select="{{ onToolSelect }}" hint-size="224px,46px"></dc-import>
+</div>
+
+</header><div style="flex:1;min-height:0;display:flex;gap:3px;background:transparent">
+<aside style="width:234px;flex:none;display:flex;flex-direction:column;gap:3px">
+<div style="position:relative;flex:1;background-color:#cdcfce;background-image:url(assets/graphite-grain.png),radial-gradient(ellipse 82% 74% at 50% 34%, #eceeed 0%, #dcdedd 46%, #c4c8c7 100%);background-repeat:repeat,no-repeat;background-size:130px 130px,cover;background-blend-mode:soft-light,normal;border-top-left-radius:6px;border-top-right-radius:3px;border-bottom-left-radius:3px;border-bottom-right-radius:3px;box-shadow:none">
+</div>
+<div style="position: relative; height: 78px; flex: none; background-color: #cdcfce; background-image: url(assets/graphite-grain.png),radial-gradient(ellipse 82% 74% at 50% 34%, #eceeed 0%, #dcdedd 46%, #c4c8c7 100%); background-repeat: repeat,no-repeat; background-size: 130px 130px,cover; background-blend-mode: soft-light,normal; border-radius: 3px; border-bottom-left-radius: 6px; box-shadow: none">
+</div>
+</aside><main style="flex: 1; min-width: 0; position: relative; background-color: #cdcfce; background-image: url(assets/graphite-grain.png), radial-gradient(ellipse 82% 74% at 50% 34%, #eceeed 0%, #dcdedd 46%, #c4c8c7 100%); background-repeat: repeat, no-repeat; background-size: 130px 130px, cover; background-blend-mode: soft-light, normal; overflow: hidden; border-radius: 3px; border-top-right-radius: 6px; border-bottom-right-radius: 6px">
+<div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 44% 38% at 50% 40%, rgba(255,255,255,.42), rgba(255,255,255,0) 74%)"></div>
+<div style="position:absolute;left:50%;bottom:14.5%;width:52%;height:11%;transform:translateX(-50%);pointer-events:none;background:radial-gradient(ellipse at 50% 50%, rgba(40,48,44,.4), rgba(40,48,44,.13) 46%, rgba(40,48,44,0) 72%);filter:blur(6px)"></div>
+<div style="position:absolute;left:50%;bottom:16%;width:26%;height:5.5%;transform:translateX(-50%);pointer-events:none;background:radial-gradient(ellipse at 50% 50%, rgba(32,40,36,.34), rgba(32,40,36,0) 70%);filter:blur(2px)"></div>
+<div ref="{{ mountRef }}" style="position:absolute;inset:0;touch-action:none"></div>
+
+
+<div style="position: absolute; top: 12px; right: 20px; user-select: none">
+<x-import component="OrbitCube" from="./OrbitCube.jsx" three="{{ three }}" get-quaternion="{{ getCamQuat }}" on-select-view="{{ onGizmoView }}" size="{{ gizmoSize }}" hint-size="114px,114px"></x-import>
+</div>
+
+<div style="position:absolute;bottom:16px;right:20px;display:flex;align-items:center;gap:13px;color:#454b48">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"></circle><path d="m15.2 15.2 4.3 4.3M8 10.5h5"></path></svg>
+<input type="range" min="0" max="100" value="{{ zoom }}" onChange="{{ onZoom }}" onInput="{{ onZoom }}" style="width:96px;height:26px;background:transparent;cursor:pointer">
+<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"></circle><path d="m15.2 15.2 4.3 4.3M8 10.5h5M10.5 8v5"></path></svg>
+</div>
+</main>
+
+</div>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;autoRotate&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  state = { wire: false, zoom: 52, tool: "cube", ready: false };
+
+  constructor(p) { super(p); this.mount = React.createRef(); }
+
+  componentDidMount() { this.initThree(); }
+  componentWillUnmount() {
+    cancelAnimationFrame(this._raf);
+    if (this._ro) this._ro.disconnect();
+    if (this.renderer) this.renderer.dispose();
+  }
+  componentDidUpdate() { this.applyWire(); }
+
+  async initThree() {
+    const THREE = await import("three");
+    const { OrbitControls } = await import("three/addons/controls/OrbitControls.js");
+    this.THREE = THREE;
+    const el = this.mount.current;
+    if (!el) return;
+    const w = el.clientWidth || 800, h = el.clientHeight || 500;
+
+    const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+    renderer.setSize(w, h);
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+    el.appendChild(renderer.domElement);
+    this.renderer = renderer;
+
+    const scene = new THREE.Scene();
+    this.scene = scene;
+    const camera = new THREE.PerspectiveCamera(32, w / h, 0.1, 200);
+    camera.position.set(7.5, 5.6, 8.2);
+    this.camera = camera;
+
+    scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa39c, 1.05));
+    const key = new THREE.DirectionalLight(0xfff6e8, 1.45);
+    key.position.set(6, 10, 6);
+    key.castShadow = true;
+    key.shadow.mapSize.set(1024, 1024);
+    Object.assign(key.shadow.camera, { left: -8, right: 8, top: 8, bottom: -8, near: 0.5, far: 40 });
+    scene.add(key);
+    const fill = new THREE.DirectionalLight(0xdfe6e0, 0.4);
+    fill.position.set(-7, 4, -5);
+    scene.add(fill);
+
+    const catcher = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.13 }));
+    catcher.rotation.x = -Math.PI / 2;
+    catcher.position.y = -1.3;
+    catcher.receiveShadow = true;
+    scene.add(catcher);
+
+    const controls = new OrbitControls(camera, renderer.domElement);
+    controls.enableDamping = true;
+    controls.dampingFactor = 0.08;
+    controls.minDistance = 4;
+    controls.maxDistance = 22;
+    controls.maxPolarAngle = Math.PI * 0.495;
+    controls.target.set(0, 0.2, 0);
+    this.controls = controls;
+    controls.addEventListener("change", () => {
+      if (this._snapping) return;
+      const dist = camera.position.distanceTo(controls.target);
+      const z = Math.round(100 * (1 - (dist - 4) / 18));
+      if (Math.abs(z - this.state.zoom) > 1) this.setState({ zoom: Math.max(0, Math.min(100, z)) });
+    });
+
+    this.buildModel();
+    this.setZoom(this.state.zoom, true);
+    this.setState({ ready: true });
+
+    this.resize = () => {
+      const W = el.clientWidth, H = el.clientHeight;
+      if (!W || !H) return;
+      if (this._lastW === W && this._lastH === H) return;
+      this._lastW = W; this._lastH = H;
+      camera.aspect = W / H;
+      camera.updateProjectionMatrix();
+      renderer.setSize(W, H);
+      renderer.domElement.style.width = W + "px";
+      renderer.domElement.style.height = H + "px";
+    };
+    this.resize();
+    requestAnimationFrame(this.resize);
+    this._ro = new ResizeObserver(() => this.resize());
+    this._ro.observe(el);
+
+    let sized = 0;
+    const loop = () => {
+      this._raf = requestAnimationFrame(loop);
+      if (sized < 30) { sized++; this.resize(); }
+      this.tickSnap();
+      controls.autoRotate = !!this.props.autoRotate;
+      controls.autoRotateSpeed = 0.6;
+      controls.update();
+      renderer.render(scene, camera);
+    };
+    loop();
+  }
+
+  mat(color, opts) {
+    return new this.THREE.MeshStandardMaterial(Object.assign({ color, roughness: 0.82, metalness: 0.05 }, opts || {}));
+  }
+  box(w, h, d, material, x, y, z, group) {
+    const m = new this.THREE.Mesh(new this.THREE.BoxGeometry(w, h, d), material || this.mat(0xffffff));
+    m.position.set(x, y, z);
+    m.castShadow = true; m.receiveShadow = true;
+    group.add(m);
+    return m;
+  }
+
+  buildModel() {
+    const THREE = this.THREE, root = new THREE.Group();
+    this.root = root;
+    this.scene.add(root);
+
+    const W = 3.0, D = 2.4, H = 1.5, ROOF = 1.1, EAVE = 0.22;
+    const wall = this.mat(0xe4e0d8, { roughness: 0.92 });
+    const trim = this.mat(0xf2efe9, { roughness: 0.85 });
+    const roofMat = this.mat(0x4a5250, { roughness: 0.7 });
+    const timber = this.mat(0xa07f57, { roughness: 0.9 });
+    const glass = new THREE.MeshPhysicalMaterial({ color: 0x9fb2b0, roughness: 0.1, metalness: 0.1, transparent: true, opacity: 0.55, transmission: 0.4 });
+
+    // ground pad
+    this.box(W + 1.2, 0.16, D + 1.2, this.mat(0xbfbfb6, { roughness: 0.95 }), 0, -1.2, 0, root);
+
+    // walls
+    this.box(W, H, D, wall, 0, -1.12 + H / 2, 0, root);
+
+    // gable roof — triangular prism extruded along Z
+    const tri = new THREE.Shape();
+    tri.moveTo(-W / 2 - EAVE, 0);
+    tri.lineTo(W / 2 + EAVE, 0);
+    tri.lineTo(0, ROOF);
+    tri.lineTo(-W / 2 - EAVE, 0);
+    const roof = new THREE.Mesh(
+      new THREE.ExtrudeGeometry(tri, { depth: D + EAVE * 2, bevelEnabled: false }),
+      roofMat
+    );
+    roof.position.set(0, -1.12 + H, -(D / 2 + EAVE));
+    roof.castShadow = true; roof.receiveShadow = true;
+    root.add(roof);
+
+    // ridge cap
+    this.box(0.1, 0.08, D + EAVE * 2 + 0.04, this.mat(0x3a4240, { roughness: 0.6 }), 0, -1.12 + H + ROOF, 0, root);
+
+    // door
+    this.box(0.56, 1.0, 0.07, timber, -0.62, -1.12 + 0.5, D / 2 + 0.02, root);
+    this.box(0.66, 1.06, 0.03, trim, -0.62, -1.12 + 0.53, D / 2 + 0.005, root);
+
+    // front windows
+    for (const x of [0.36, 1.02]) {
+      this.box(0.5, 0.5, 0.03, trim, x, -1.12 + 0.9, D / 2 + 0.005, root);
+      this.box(0.4, 0.4, 0.05, null, x, -1.12 + 0.9, D / 2 + 0.03, root).material = glass;
+      this.box(0.03, 0.4, 0.02, trim, x, -1.12 + 0.9, D / 2 + 0.06, root);
+      this.box(0.4, 0.03, 0.02, trim, x, -1.12 + 0.9, D / 2 + 0.06, root);
+    }
+
+    // side window
+    const sw = this.box(0.05, 0.46, 0.62, null, W / 2 + 0.01, -1.12 + 0.92, -0.3, root);
+    sw.material = glass;
+    this.box(0.02, 0.54, 0.7, trim, W / 2 + 0.005, -1.12 + 0.92, -0.3, root);
+
+    // chimney
+    this.box(0.28, 0.9, 0.28, this.mat(0xb9b1a6, { roughness: 0.95 }), -0.8, -1.12 + H + 0.55, -0.5, root);
+    this.box(0.34, 0.07, 0.34, this.mat(0x8f887e), -0.8, -1.12 + H + 1.02, -0.5, root);
+
+    // front step
+    this.box(0.8, 0.12, 0.34, this.mat(0xcac4ba, { roughness: 0.95 }), -0.62, -1.06, D / 2 + 0.2, root);
+  }
+
+  applyWire() {
+    if (!this.root) return;
+    this.root.traverse(o => { if (o.isMesh && o.material.wireframe !== undefined) o.material.wireframe = this.state.wire; });
+  }
+
+  setZoom(v, silent) {
+    if (!this.camera) return;
+    const t = this.controls.target;
+    const dist = 4 + (1 - v / 100) * 18;
+    const dir = this.camera.position.clone().sub(t).normalize();
+    this._snapping = true;
+    this.camera.position.copy(t.clone().add(dir.multiplyScalar(dist)));
+    this._snapping = false;
+    if (!silent) this.setState({ zoom: v });
+  }
+
+  snap(pos, instant) {
+    if (!this.camera) return;
+    const t = this.controls.target, dist = this.camera.position.distanceTo(t);
+    const to = new this.THREE.Vector3(...pos).normalize().multiplyScalar(dist);
+    if (instant) {
+      this._snapping = true;
+      this.camera.position.copy(t.clone().add(to));
+      this.camera.lookAt(t);
+      this._snapping = false;
+      return;
+    }
+    this._anim = { from: this.camera.position.clone().sub(t), to, t0: performance.now(), dur: 520 };
+  }
+
+  tickSnap() {
+    const a = this._anim;
+    if (!a) return;
+    const k = Math.min(1, (performance.now() - a.t0) / a.dur);
+    const e = k < 0.5 ? 4 * k * k * k : 1 - Math.pow(-2 * k + 2, 3) / 2; // easeInOutCubic
+    const t = this.controls.target;
+    const off = new this.THREE.Vector3().copy(a.from).lerp(a.to, e);
+    // keep radius steady while the direction eases
+    off.normalize().multiplyScalar(a.from.length() * (1 - e) + a.to.length() * e);
+    this._snapping = true;
+    this.camera.position.copy(t.clone().add(off));
+    this.camera.lookAt(t);
+    this.controls.update();
+    this._snapping = false;
+    if (k >= 1) this._anim = null;
+  }
+
+  orbit(deg) {
+    if (!this.camera) return;
+    const t = this.controls.target;
+    const off = this.camera.position.clone().sub(t);
+    off.applyAxisAngle(new this.THREE.Vector3(0, 1, 0), deg * Math.PI / 180);
+    this._snapping = true;
+    this.camera.position.copy(t.clone().add(off));
+    this.camera.lookAt(t);
+    this._snapping = false;
+  }
+
+  renderVals() {
+    const s = this.state;
+    const iconBtn = { display: "grid", placeItems: "center", width: 28, height: 28, padding: 0, background: "transparent", border: 0, cursor: "pointer", color: "#e2e6e3" };
+    return {
+      layers: [
+        { n: "01", name: "Tile + adhesive", spec: "10 mm" },
+        { n: "02", name: "Screed to fall", spec: "1:80" },
+        { n: "03", name: "Membrane", spec: "2 coat" },
+        { n: "04", name: "Structural slab", spec: "180 mm" },
+        { n: "05", name: "Timber fascia", spec: "32 mm" }
+      ],
+      mountRef: this.mount,
+      zoom: s.zoom,
+      iconBtn,
+      wireBtn: Object.assign({}, iconBtn, { color: s.wire ? "#ffffff" : "#e2e6e3" }),
+      boxBtn: { display: "grid", placeItems: "center", width: 24, height: 24, padding: 0, background: "transparent", border: "1px solid rgba(226,230,227,.7)", borderRadius: 2, cursor: "pointer", color: "#e2e6e3" },
+      arrowBtn: { width: 22, height: 22, display: "grid", placeItems: "center", padding: 0, background: "transparent", border: 0, cursor: "pointer", color: "#5f6763" },
+      three: this.THREE,
+      gizmoSize: 78,
+      getCamQuat: () => (this.camera ? this.camera.quaternion : null),
+      onGizmoView: (name) => {
+        const dirs = {
+          front: [0, 0.02, 1], back: [0, 0.02, -1],
+          right: [1, 0.02, 0], left: [-1, 0.02, 0],
+          top: [0.001, 1, 0.001], bottom: [0.001, -1, 0.001],
+          iso: [1, 0.78, 1.1]
+        };
+        this.snap(dirs[name] || dirs.iso);
+      },
+      prev: () => this.orbit(-30),
+      next: () => this.orbit(30),
+      activeTool: s.tool,
+      onToolSelect: (id) => {
+        if (id === "prev") this.orbit(-30);
+        else if (id === "next") this.orbit(30);
+        else if (id === "cube") { this.setState({ tool: "cube" }); this.snap([1, 0.78, 1.1]); }
+        else if (id === "orbit") { this.setState({ tool: "orbit" }); if (this.controls) this.controls.enableRotate = true; }
+      },
+      toggleWire: () => this.setState(p => ({ wire: !p.wire })),
+      resetView: () => { this.snap([1, 0.78, 1.1]); this.setZoom(52); },
+      viewIso: () => this.snap([1, 0.78, 1.1]),
+      viewTop: () => this.snap([0.001, 1, 0.001]),
+      viewLeft: () => this.orbit(-45),
+      viewRight: () => this.orbit(45),
+      onZoom: (e) => this.setZoom(Number(e.target.value))
+    };
+  }
+}
+</script>
+</body>
+</html>

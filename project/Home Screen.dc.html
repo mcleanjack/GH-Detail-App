@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+html,body{margin:0;min-height:100%;background:#131313}
+*{-webkit-font-smoothing:antialiased}
+@keyframes homeFade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes homeBar{0%{transform:translateX(-100%)}100%{transform:translateX(320%)}}
+</style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:52px;padding:64px 24px;font-family:'Archivo',system-ui,sans-serif;background-color:#141414;background-image:linear-gradient(180deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.014) 40%, rgba(255,255,255,0) 100%),url(assets/graphite-grain.png),linear-gradient(146deg, #1a1a1a 0%, #151515 44%, #0e0e0e 100%);background-repeat:no-repeat,repeat,no-repeat;background-size:cover,104px 104px,cover;background-blend-mode:screen,overlay,normal;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 -1px 0 rgba(0,0,0,.6);position:relative;overflow:hidden">
+
+<div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 62% 46% at 50% -8%, rgba(206,226,238,.09) 0%, rgba(206,226,238,0) 72%),radial-gradient(ellipse 46% 34% at 50% 118%, rgba(120,166,142,.05) 0%, rgba(120,166,142,0) 74%),radial-gradient(ellipse 118% 96% at 50% 46%, rgba(0,0,0,0) 40%, rgba(0,0,0,.42) 100%)"></div>
+
+
+<div style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:40px;animation:homeFade 1100ms cubic-bezier(.22,.7,.3,1) both">
+
+<img src="assets/glenvill-logo.png" alt="Glenvill Homes" style="width:320px;max-width:74vw;height:auto;display:block;image-rendering:-webkit-optimize-contrast;opacity:.92;filter:brightness(.34) contrast(1.05) drop-shadow(0 -1px 1px rgba(0,0,0,.85)) drop-shadow(0 1px 0 rgba(255,255,255,.16)) drop-shadow(0 2px 2px rgba(255,255,255,.06))">
+
+<div style="display:flex;align-items:center;gap:12px;margin-top:-14px">
+<div style="width:44px;height:1px;background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.13))"></div>
+<div style="font-size:8px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.26)">Select your device</div>
+<div style="width:44px;height:1px;background:linear-gradient(90deg, rgba(255,255,255,.13), rgba(255,255,255,0))"></div>
+</div>
+
+<div onMouseEnter="{{ onHoverIn }}" onMouseLeave="{{ onHoverOut }}" style="display:flex;align-items:center;gap:5px;padding:7px;border-radius:999px;background:linear-gradient(180deg, #fcfcfc 0%, #eeeeed 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -1px 0 rgba(20,20,20,.06),inset 0 0 0 1px rgba(20,20,20,.05),0 1px 2px rgba(0,0,0,.3),0 8px 20px rgba(0,0,0,.3),0 26px 50px rgba(0,0,0,.32)">
+<sc-for list="{{ devices }}" as="d" hint-placeholder-count="3">
+<button type="button" onClick="{{ d.onPick }}" style="border:none;cursor:pointer;padding:0 26px;height:44px;border-radius:999px;font-family:'Archivo',system-ui,sans-serif;font-size:15px;font-weight:{{ d.weight }};letter-spacing:.005em;white-space:nowrap;color:{{ d.color }};background:{{ d.bg }};box-shadow:{{ d.shadow }};transition:color 160ms ease,background 200ms ease">{{ d.label }}</button>
+</sc-for>
+</div>
+
+<div style="position:relative;height:150px;flex:none;display:flex;align-items:center;justify-content:center">
+<span style="position:relative;display:inline-block;opacity:{{ goOpacity }};visibility:{{ goVis }};pointer-events:{{ goEvents }};transition:opacity 620ms ease">
+<button type="button" onClick="{{ onGo }}" onMouseEnter="{{ onEnterIn }}" onMouseLeave="{{ onEnterOut }}" style="display:block;border:none;background:transparent;cursor:pointer;padding:12px 20px;font-family:'Archivo',system-ui,sans-serif;font-size:21px;font-weight:700;letter-spacing:.16em;text-indent:.16em;text-transform:uppercase;color:#5a5a58;transform:scale({{ goScale }});transition:transform 620ms cubic-bezier(.22,.7,.3,1),color 420ms ease,opacity 620ms ease" style-hover="color:#c9c9c6" style-active="transform:scale(.985)">Enter</button>
+<span aria-hidden="true" style="position:absolute;left:20px;right:20px;bottom:5px;height:1px;overflow:hidden;pointer-events:none"><span style="display:block;height:100%;width:100%;background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.85) 50%, rgba(255,255,255,0));transform:scaleX({{ goRule }});transform-origin:center;transition:transform 340ms cubic-bezier(.22,.7,.3,1)"></span></span>
+</span>
+<div style="position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:16px;opacity:{{ loadOpacity }};visibility:{{ loadVis }};transition:opacity 260ms ease">
+<div style="width:132px;height:2px;border-radius:2px;overflow:hidden;background:rgba(255,255,255,.05)">
+<div style="width:30%;height:100%;border-radius:2px;background:linear-gradient(90deg, rgba(120,120,118,0), #7a7a78, rgba(120,120,118,0));animation:homeBar 1.9s cubic-bezier(.5,.05,.5,.95) infinite"></div>
+</div>
+<div style="font-size:8px;font-weight:600;letter-spacing:.3em;text-transform:uppercase;color:rgba(255,255,255,.3)">Loading viewer</div>
+</div>
+</div>
+
+</div>
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { device: 0, loading: false, hover: false, enterHover: false };
+
+  hoverIn() {
+    clearTimeout(this._leave);
+    this.setState({ hover: true });
+  }
+
+  hoverOut() {
+    clearTimeout(this._leave);
+    this._leave = setTimeout(() => this.setState({ hover: false }), 220);
+  }
+
+  componentWillUnmount() { clearTimeout(this._leave); }
+
+  static KEYS = ["pc", "tablet", "phone"];
+
+  componentDidMount() {
+    try {
+      const saved = window.localStorage.getItem("gv.deviceMode");
+      const i = Component.KEYS.indexOf(saved);
+      if (i >= 0) this.setState({ device: i });
+    } catch (e) { /* storage blocked */ }
+  }
+
+  pick(i) {
+    this.setState({ device: i });
+    try { window.localStorage.setItem("gv.deviceMode", Component.KEYS[i]); } catch (e) {}
+  }
+
+  go() {
+    if (this.state.loading) return;
+    const key = Component.KEYS[this.state.device] || "pc";
+    try { window.localStorage.setItem("gv.deviceMode", key); } catch (e) {}
+    this.setState({ loading: true });
+    setTimeout(() => { window.location.href = "Detail Viewer.html?device=" + key; }, 900);
+  }
+
+  renderVals() {
+    const labels = ["PC", "iPad/Tablet", "Phone"];
+    return {
+      goOpacity: this.state.hover && !this.state.loading ? 1 : 0,
+      goScale: this.state.hover && !this.state.loading ? 1 : 0.94,
+      goVis: this.state.hover && !this.state.loading ? "visible" : "hidden",
+      goEvents: this.state.hover && !this.state.loading ? "auto" : "none",
+      loadOpacity: this.state.loading ? 1 : 0,
+      loadVis: this.state.loading ? "visible" : "hidden",
+      onGo: () => this.go(),
+      onHoverIn: () => this.hoverIn(),
+      onHoverOut: () => this.hoverOut(),
+      // Same sweep-in rule as the logo in the viewer header.
+      goRule: this.state.enterHover && this.state.hover && !this.state.loading ? 1 : 0,
+      onEnterIn: () => { this.hoverIn(); this.setState({ enterHover: true }); },
+      onEnterOut: () => { this.hoverOut(); this.setState({ enterHover: false }); },
+      devices: labels.map((label, i) => {
+        const on = i === this.state.device;
+        return {
+          label, weight: on ? 700 : 600,
+          color: on ? "#ffffff" : "#9c9c9a",
+          bg: on ? "linear-gradient(180deg, #262625 0%, #131312 100%)" : "transparent",
+          shadow: on
+            ? "inset 0 1px 0 rgba(255,255,255,.14),0 1px 2px rgba(0,0,0,.4),0 6px 14px rgba(0,0,0,.28)"
+            : "none",
+          onPick: () => this.pick(i)
+        };
+      })
+    };
+  }
+}
+
+</script>
+</body>
+</html>
