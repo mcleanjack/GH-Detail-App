@@ -124,7 +124,10 @@ class Component extends DCLogic {
     const key = Component.KEYS[this.state.device] || "pc";
     try { window.localStorage.setItem("gv.deviceMode", key); } catch (e) {}
     this.setState({ loading: true });
-    setTimeout(() => { window.location.href = "Detail Viewer.html?device=" + key; }, 900);
+    setTimeout(() => {
+      try { sessionStorage.setItem("gv.fromHome", "1"); } catch (e) {}
+      window.location.href = "Detail Viewer.html?device=" + key;
+    }, 900);
   }
 
   renderVals() {

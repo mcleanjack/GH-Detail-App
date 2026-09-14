@@ -2,6 +2,19 @@
 <html>
 <head>
 <meta charset="utf-8">
+<script>
+  // This viewer is only ever meant to be reached by picking a device on the
+  // Home screen first. A bookmarked, shared, or otherwise direct link to
+  // this file sends the visitor there instead, before anything else on the
+  // page loads or renders. The flag is set by Home Screen right before it
+  // navigates here, and survives refreshes within the same tab (so staying
+  // on the viewer and reloading it does not bounce you back to Home).
+  (function () {
+    try {
+      if (!sessionStorage.getItem("gv.fromHome")) { location.replace("Home Screen.dc.html"); }
+    } catch (e) {}
+  })();
+</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
