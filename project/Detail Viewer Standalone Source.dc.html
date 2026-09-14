@@ -432,9 +432,16 @@ class Component extends DCLogic {
   // just streamed from a file instead of held in memory) so every visitor
   // sees them with nothing to import. Anything a visitor imports themselves
   // still only lives in their own browser's IndexedDB (see restoreImports) —
-  // add another entry here, plus the .glb in assets/, to make one permanent.
+  // add another entry here, plus the .glb (and .pdf, if it has one) in
+  // assets/, to make one permanent. shippedSheet is this model's default 2D
+  // detail sheet — see attachShippedSheet(): a real manual import still
+  // always wins over it, per the existing manual-only sheet design.
   static MODELS = [
-    { name: "Balcony Parapet Detail", code: "BAL-001", url: "assets/balcony-parapet-detail.glb" }
+    {
+      name: "Balcony Parapet Detail", code: "BAL-001",
+      url: "assets/balcony-parapet-detail.glb",
+      shippedSheet: "assets/balcony-detail-sheet.pdf"
+    }
   ];
 
   // SHA-256 of the import passphrase. The plaintext is not present in this
@@ -522,6 +529,15 @@ class Component extends DCLogic {
     delete spec.sheetFromImport;
     delete spec.sheetTitle;
     delete spec.sheetMeta;
+    // A built-in model's shipped default (see attachShippedSheet) must not
+    // silently reappear on the next model load just because Remove cleared
+    // the fields above — _sheetRemoved keeps it gone for the rest of the
+    // session, same as an imported model's removal.
+    if (spec.sheetFromShipped || spec.shippedSheet) {
+      delete spec.sheetFromShipped;
+      delete spec._shippedCache;
+      spec._sheetRemoved = true;
+    }
     if (spec.importId) Component.storeTx("readwrite", (st) => {
       const get = st.get(spec.importId);
       get.onsuccess = () => {
@@ -693,12 +709,50 @@ class Component extends DCLogic {
     spec.sheetBlob = blob;
     spec.sheetPdf = true;
     delete spec.sheetBroken;
-    this.renderSheet(spec, blob);
     spec.sheetFromImport = true;
     delete spec.sheetFromLink;
     delete spec.sheetFromShipped;
     spec.sheetTitle = String(fileName || "Detail sheet").replace(/\.pdf$/i, "");
     spec.sheetMeta = ["Imported detail", Component.bytesLabel(blob.size)].filter(Boolean).join(" \u00b7 ");
+    return this.renderSheet(spec, blob);
+  }
+
+  // A built-in model's default 2D sheet (spec.shippedSheet, a static asset
+  // path \u2014 see MODELS). Fetched and rasterised through the same pipeline as
+  // a manual PDF import, but marked sheetFromShipped rather than
+  // sheetFromImport so it's clearly a default, not something the visitor
+  // attached themselves. A real manual import always takes precedence \u2014 this
+  // returns immediately if one is already present \u2014 and once the visitor
+  // removes it (removeSheet sets _sheetRemoved) it stays gone for the rest
+  // of the session rather than silently reappearing on the next model load.
+  // Rasterising a multi-megabyte PDF on every reselect would be wasteful, so
+  // the result is cached on the spec itself after the first attach.
+  async attachShippedSheet(spec) {
+    if (!spec || spec.sheetFromImport || !spec.shippedSheet || spec._sheetRemoved) return;
+    if (spec._shippedCache) {
+      Object.assign(spec, spec._shippedCache);
+      this.applySheet();
+      this.forceUpdate();
+      return;
+    }
+    try {
+      const res = await fetch(spec.shippedSheet);
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      const blob = await res.blob();
+      await this.setSheetBlob(spec, blob, spec.name || "Detail sheet");
+      spec.sheetFromImport = false;
+      spec.sheetFromShipped = true;
+      spec.sheetMeta = "Detail sheet \u00b7 " + Component.bytesLabel(blob.size);
+      spec._shippedCache = {
+        sheet: spec.sheet, sheetPdf: spec.sheetPdf, sheetBlob: spec.sheetBlob,
+        sheetTitle: spec.sheetTitle, sheetMeta: spec.sheetMeta, sheetPages: spec.sheetPages,
+        sheetFromShipped: true
+      };
+      this.applySheet();
+      this.forceUpdate();
+    } catch (err) {
+      console.warn("shipped sheet failed to load:", spec.name, err);
+    }
   }
 
   // Imported models are persisted as blobs in IndexedDB. Choosing a device on
@@ -1487,6 +1541,7 @@ class Component extends DCLogic {
         this.polishModel(root);
         Object.assign(spec, Component.specFromAsset(gltf));
         this.attachLinkedSheet(spec);
+        this.attachShippedSheet(spec);
         this.buildStages(gltf);
         if (this.state.loadError) this.setState({ loadError: "" });
       } catch (err) {
