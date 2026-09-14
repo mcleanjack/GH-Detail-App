@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Glenvill Detail Viewer — Install</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<style>
+  html,body{margin:0;min-height:100%;background:#131313;font-family:'Barlow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+  *{box-sizing:border-box}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .card{animation:fadeUp 700ms cubic-bezier(.22,.7,.3,1) both}
+  .step{display:none}
+  .step.active{display:flex}
+</style>
+</head>
+<body>
+
+<div style="min-height:100vh;width:100%;box-sizing:border-box;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:36px;padding:56px 20px;font-family:'Archivo',system-ui,sans-serif;background-color:#141414;background-image:linear-gradient(180deg, rgba(255,255,255,.05) 0%, rgba(255,255,255,.014) 40%, rgba(255,255,255,0) 100%),linear-gradient(146deg, #1a1a1a 0%, #151515 44%, #0e0e0e 100%);background-repeat:no-repeat,no-repeat;background-size:cover,cover;position:relative;overflow:hidden">
+
+<div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 62% 46% at 50% -8%, rgba(206,226,238,.09) 0%, rgba(206,226,238,0) 72%),radial-gradient(ellipse 46% 34% at 50% 118%, rgba(120,166,142,.05) 0%, rgba(120,166,142,0) 74%),radial-gradient(ellipse 118% 96% at 50% 46%, rgba(0,0,0,0) 40%, rgba(0,0,0,.42) 100%)"></div>
+
+<div class="card" style="position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;gap:28px;width:100%;max-width:400px">
+
+  <div style="display:flex;flex-direction:column;align-items:center;gap:14px">
+    <div style="font-family:'Archivo',system-ui,sans-serif;font-size:13px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.72)">Glenvill Homes</div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div style="width:30px;height:1px;background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,.22))"></div>
+      <div style="font-size:8px;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:rgba(255,255,255,.4)">Detail Viewer</div>
+      <div style="width:30px;height:1px;background:linear-gradient(90deg, rgba(255,255,255,.22), rgba(255,255,255,0))"></div>
+    </div>
+  </div>
+
+  <div style="font-size:23px;font-weight:700;letter-spacing:-.02em;color:#e2e1df;text-align:center;line-height:1.2">Install the app on your device</div>
+  <div style="font-size:12.5px;font-weight:400;line-height:1.6;color:rgba(255,255,255,.5);text-align:center;max-width:320px">Adds an icon to your home screen that opens straight into the viewer, full-screen, no browser bar. It still needs an internet connection — nothing is stored offline.</div>
+
+  <!-- QR code: encodes this page's own URL, so it always points wherever it's actually hosted. -->
+  <div style="display:flex;flex-direction:column;align-items:center;gap:10px;padding:18px;border-radius:8px;background:#ffffff;box-shadow:inset 0 0 0 1px rgba(0,0,0,.06),0 12px 28px rgba(0,0,0,.35)">
+    <div id="qr"></div>
+    <div style="font-size:8px;font-weight:600;letter-spacing:.16em;text-transform:uppercase;color:rgba(20,20,20,.4)">Scan to open on your phone</div>
+  </div>
+
+  <div style="display:flex;align-items:center;gap:9px;width:100%">
+    <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+    <div style="font-size:8px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3)">or follow these steps</div>
+    <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+  </div>
+
+  <!-- Device-specific instructions -->
+  <div id="steps" style="width:100%;display:flex;flex-direction:column;gap:14px"></div>
+
+  <a id="continueLink" href="project/Home%20Screen.dc.html" style="display:block;width:100%;box-sizing:border-box;text-align:center;padding:14px 20px;border-radius:6px;text-decoration:none;font-family:'Archivo',system-ui,sans-serif;font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#0d1310;background:linear-gradient(180deg, #6fae91 0%, #4e8a71 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.22),0 2px 6px rgba(0,0,0,.4)">Continue to the viewer</a>
+
+  <button type="button" id="copyBtn" style="border:none;background:transparent;cursor:pointer;padding:4px;font-family:'Archivo',system-ui,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.4)">Copy this page's link</button>
+
+</div>
+</div>
+
+<script>
+  // QR code encodes wherever this page actually ends up hosted — no domain
+  // to hardcode, works the same on a Vercel preview URL, a custom domain,
+  // or a local test server.
+  try {
+    new QRCode(document.getElementById("qr"), {
+      text: window.location.href,
+      width: 176,
+      height: 176,
+      colorDark: "#131313",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.M
+    });
+  } catch (e) {
+    document.getElementById("qr").textContent = "QR code unavailable — use the link below instead.";
+  }
+
+  function stepRow(icon, text) {
+    return '<div style="display:flex;align-items:flex-start;gap:11px">' +
+      '<div style="flex:none;width:22px;height:22px;border-radius:999px;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.06);font-size:11px;font-weight:700;color:rgba(255,255,255,.6)">' + icon + '</div>' +
+      '<div style="flex:1;font-size:12px;font-weight:500;line-height:1.5;color:rgba(255,255,255,.75);padding-top:2px">' + text + '</div>' +
+      '</div>';
+  }
+
+  const ua = navigator.userAgent || "";
+  const isIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const isAndroid = /Android/.test(ua);
+  const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+  const isInAppBrowser = /FBAN|FBAV|Instagram|Line\/|Twitter|MicroMessenger/.test(ua);
+  const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+
+  let html = "";
+  if (isStandalone) {
+    html = stepRow("&#10003;", "You're already using the installed app — nothing else to do here.");
+  } else if (isInAppBrowser) {
+    html = stepRow("!", "This link opened inside another app's built-in browser, which can't install apps. Tap the menu (usually ⋮ or •••) and choose <b>Open in Safari</b> or <b>Open in Chrome</b>, then come back to this page.");
+  } else if (isIOS) {
+    if (isSafari) {
+      html =
+        stepRow("1", "Tap the <b>Share</b> icon (square with an arrow) in Safari's toolbar.") +
+        stepRow("2", "Scroll down and tap <b>Add to Home Screen</b>.") +
+        stepRow("3", "Tap <b>Add</b> in the top right.");
+    } else {
+      html = stepRow("!", "On iPhone/iPad, installing only works from <b>Safari</b> — Apple doesn't allow other browsers to do this. Open this page in Safari, then follow the steps there.");
+    }
+  } else if (isAndroid) {
+    html =
+      stepRow("1", "Tap the <b>&#8942;</b> menu in the top right of your browser.") +
+      stepRow("2", "Tap <b>Install app</b> (or <b>Add to Home screen</b>).") +
+      stepRow("3", "Confirm by tapping <b>Install</b>.");
+  } else {
+    html =
+      stepRow("1", "Look for an install icon in the address bar (usually a small monitor/plus icon), or open your browser's menu.") +
+      stepRow("2", "Choose <b>Install Glenvill Detail Viewer…</b>") +
+      stepRow("3", "It opens in its own window from then on, like a desktop app.");
+  }
+  document.getElementById("steps").innerHTML = html;
+
+  document.getElementById("copyBtn").addEventListener("click", function () {
+    const btn = this;
+    navigator.clipboard.writeText(window.location.href).then(function () {
+      btn.textContent = "Copied!";
+      setTimeout(function () { btn.textContent = "Copy this page's link"; }, 1600);
+    }).catch(function () {});
+  });
+</script>
+
+</body>
+</html>
