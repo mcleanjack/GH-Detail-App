@@ -47,9 +47,9 @@ input[type=range][data-touch="1"]::-moz-range-thumb{width:22px;height:22px}
 </style>
 </helmet>
 
-<div style="min-height: 100vh; width: 100vw; display: flex; align-items: center; justify-content: center; padding: 14px 14px; position: absolute; background: #ffffff; left: -7px; top: -3px">
+<div style="min-height: 100vh; min-height: 100dvh; width: 100vw; width: 100dvw; display: flex; align-items: center; justify-content: center; padding: {{ outerPad }}; position: absolute; background: #ffffff; left: {{ outerLeft }}; top: {{ outerTop }}">
 <div style="position:relative;z-index:1;flex:none;width:{{ fitW }}px;height:{{ fitH }}px">
-<div style="position:absolute;left:0;top:0;display:flex;flex-direction:column;box-sizing:border-box;width:{{ frameW }}px;height:{{ frameH }}px;padding:{{ bezelPad }}px;border-radius:{{ bezelRadius }}px;background:{{ bezelBg }};box-shadow:{{ bezelShadow }};transform:scale({{ frameScale }});transform-origin:top left">
+<div style="position:absolute;left:0;top:0;display:flex;flex-direction:column;box-sizing:border-box;width:{{ frameW }}px;height:{{ frameH }}px;padding:{{ bezelPad }}px;padding:{{ safeAreaPad }};border-radius:{{ bezelRadius }}px;background:{{ bezelBg }};box-shadow:{{ bezelShadow }};transform:scale({{ frameScale }});transform-origin:top left">
 
 <div style="position:relative;z-index:1;flex:1;min-height:0;width:100%;border-radius:{{ screenRadius }}px;background-color:#131313;border:1px solid #040404;overflow:hidden;display:flex;flex-direction:column;background-image:url(assets/graphite-grain.png),linear-gradient(152deg, #1f1f1f 0%, #161616 40%, #0d0d0d 82%, #0a0a0a 100%);background-repeat:repeat,no-repeat;background-size:104px 104px,cover;background-blend-mode:overlay,normal;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),inset 0 -1px 0 rgba(0,0,0,.7),inset 0 0 0 1px rgba(255,255,255,.022),0 1px 2px rgba(0,0,0,.2),0 6px 14px rgba(0,0,0,.13),0 18px 34px rgba(0,0,0,.1),0 40px 70px rgba(0,0,0,.085)">
 
@@ -113,7 +113,7 @@ input[type=range][data-touch="1"]::-moz-range-thumb{width:22px;height:22px}
 </button>
 
 <sc-if value="{{ pickerOpen }}" hint-placeholder-val="{{ false }}">
-<div style="position:absolute;top:44px;right:0;width:100%;border-radius:5px;overflow:hidden;background:linear-gradient(180deg, #1e1e1d 0%, #161615 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 0 0 1px rgba(0,0,0,.7),0 12px 28px rgba(0,0,0,.5)">
+<div style="position:absolute;top:44px;right:0;width:100%;max-width:min(100%, calc(100dvw - 24px));border-radius:5px;overflow:hidden;background:linear-gradient(180deg, #1e1e1d 0%, #161615 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 0 0 1px rgba(0,0,0,.7),0 12px 28px rgba(0,0,0,.5)">
 <div style="display:flex;align-items:center;gap:8px;padding:9px 11px;border-bottom:1px solid rgba(255,255,255,.06)">
 <span style="font-size:11px;color:rgba(255,255,255,.32)">⌕</span>
 <input type="text" value="{{ query }}" onChange="{{ onQuery }}" placeholder="Search models" style="flex:1;min-width:0;border:none;outline:none;background:transparent;color:#d5d4d2;font-family:'Archivo',system-ui,sans-serif;font-size:11px;font-weight:500;letter-spacing:.01em">
@@ -348,7 +348,7 @@ input[type=range][data-touch="1"]::-moz-range-thumb{width:22px;height:22px}
 </div>
 </sc-if>
 
-<div style="position:absolute;bottom:16px;right:20px;display:{{ zoomDisplay }};align-items:center;gap:13px;color:#454b48">
+<div style="position:absolute;bottom:{{ zoomBottom }};right:20px;display:{{ zoomDisplay }};align-items:center;gap:13px;color:#454b48">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"></circle><path d="m15.2 15.2 4.3 4.3M8 10.5h5"></path></svg>
 <input type="range" min="0" max="100" value="{{ zoom }}" onChange="{{ onZoom }}" onInput="{{ onZoom }}" data-touch="{{ touchSlider }}" style="width:{{ zoomW }}px;height:30px;background:transparent;cursor:pointer">
 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.2"></circle><path d="m15.2 15.2 4.3 4.3M8 10.5h5M10.5 8v5"></path></svg>
@@ -399,21 +399,31 @@ class Component extends DCLogic {
       headerH: 70, logoColW: 234, logoW: 200, asideW: 224, pickerW: 252, pickerMR: 22,
       toolbarSize: "lg", toolbarPlace: "header", asideMode: "fixed", gizmoSize: 78, zoomW: 96
     },
+    // Tablet/phone screenW/screenH are placeholders — mode() overwrites them
+    // with the live viewport size on every render, since these two modes now
+    // render as true full-bleed pages (opened directly on the device) rather
+    // than a scaled-down device-mockup frame. bezelPad/Radius/Bg/Shadow and
+    // statusH are zeroed for the same reason: a real device shows its own
+    // chrome (status bar, rounded screen corners), so faking one on top of it
+    // would be redundant chrome-on-chrome. pc keeps the old mockup-in-browser
+    // presentation (this app is opened on a desktop to preview it there, not
+    // run full-bleed on desktop).
     tablet: {
-      screenW: 1194, screenH: 834, bezelPad: 22, bezelRadius: 44, screenRadius: 22,
-      bezelBg: "linear-gradient(160deg, #2b2b2d 0%, #1a1a1c 52%, #101011 100%)",
-      bezelShadow: "inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(0,0,0,.8),0 30px 60px rgba(0,0,0,.28)",
-      statusH: 26,
+      screenW: 1194, screenH: 834, bezelPad: 0, bezelRadius: 0, screenRadius: 0,
+      bezelBg: "transparent", bezelShadow: "none", statusH: 0,
       headerH: 64, logoColW: 196, logoW: 158, asideW: 192, pickerW: 226, pickerMR: 16,
       toolbarSize: "lg", toolbarPlace: "header", asideMode: "fixed", gizmoSize: 96, zoomW: 120
     },
     phone: {
-      screenW: 844, screenH: 390, bezelPad: 12, bezelRadius: 50, screenRadius: 40,
-      bezelBg: "linear-gradient(160deg, #2b2b2d 0%, #1a1a1c 52%, #101011 100%)",
-      bezelShadow: "inset 0 1px 0 rgba(255,255,255,.14),inset 0 0 0 1px rgba(0,0,0,.8),0 30px 60px rgba(0,0,0,.3)",
-      statusH: 30,
+      screenW: 390, screenH: 844, bezelPad: 0, bezelRadius: 0, screenRadius: 0,
+      bezelBg: "transparent", bezelShadow: "none", statusH: 0,
+      // Logo + MODEL picker alone (≈224px) comfortably fit a 390px-wide
+      // portrait phone; the toolbar (up to 5 touch buttons ≈292px) would not
+      // fit alongside them, so phone uses the already-built "floating" toolbar
+      // placement (a pill over the 3D canvas, see the toolbarFloating sc-if)
+      // instead of the in-header placement tablet/pc use.
       headerH: 58, logoColW: 96, logoW: 92, asideW: 214, pickerW: 128, pickerMR: 10,
-      toolbarSize: "touch", toolbarPlace: "header", asideMode: "drawer", gizmoSize: 92, zoomW: 104
+      toolbarSize: "touch", toolbarPlace: "floating", asideMode: "drawer", gizmoSize: 92, zoomW: 104
     }
   };
 
@@ -925,14 +935,34 @@ class Component extends DCLogic {
   componentDidMount() {
     this.applyDeviceMode();
     this.restoreImports().catch(e => console.warn("import restore failed", e));
+    // Tablet/phone are full-bleed now, so their frame must track the live
+    // viewport — window "resize" alone misses some mobile-browser cases
+    // (URL bar show/hide, orientation change) where visualViewport fires but
+    // the window doesn't, so all three are wired up.
     this._onResize = () => this.setState({ fit: this.fitScale() });
     window.addEventListener("resize", this._onResize);
+    window.addEventListener("orientationchange", this._onResize);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", this._onResize);
     this.initThree().catch(err => { window.__threeErr = String(err && err.stack || err); console.error("initThree failed", err); });
   }
 
   // ---- device mode ------------------------------------------------------
 
-  mode() { return Component.MODES[this.state.device] || Component.MODES.pc; }
+  // pc keeps its fixed reference size (a mockup shown scaled-down inside a
+  // desktop browser). Tablet/phone are opened full-bleed on the actual
+  // device, so their screenW/screenH come from the live viewport instead of
+  // a fixed reference — visualViewport is preferred where available since it
+  // tracks the real visible area (excluding a collapsed on-screen keyboard,
+  // etc.) more accurately than innerWidth/innerHeight on mobile.
+  mode() {
+    const m = Component.MODES[this.state.device] || Component.MODES.pc;
+    if (this.state.device === "pc") return m;
+    const vv = window.visualViewport;
+    return Object.assign({}, m, {
+      screenW: Math.round(vv ? vv.width : window.innerWidth),
+      screenH: Math.round(vv ? vv.height : window.innerHeight)
+    });
+  }
 
   isTouchMode() { return this.state.device !== "pc"; }
 
@@ -954,8 +984,13 @@ class Component extends DCLogic {
     this.setState({ device: mode, fit: this.fitScale(mode) });
   }
 
+  // Tablet/phone render at exactly the live viewport size (see mode()), so
+  // there is nothing left to scale down — only pc's fixed mockup frame needs
+  // shrinking to fit inside whatever browser window it's opened in.
   fitScale(device) {
-    const m = Component.MODES[device || this.state.device] || Component.MODES.pc;
+    const dev = device || this.state.device;
+    if (dev !== "pc") return 1;
+    const m = Component.MODES.pc;
     const w = m.screenW + m.bezelPad * 2, h = m.screenH + m.bezelPad * 2;
     const availW = Math.max(240, window.innerWidth - 28);
     const availH = Math.max(240, window.innerHeight - 28);
@@ -966,6 +1001,11 @@ class Component extends DCLogic {
     if (this._onResize) window.removeEventListener("resize", this._onResize);
   }
   componentWillUnmount() {
+    if (this._onResize) {
+      window.removeEventListener("resize", this._onResize);
+      window.removeEventListener("orientationchange", this._onResize);
+      if (window.visualViewport) window.visualViewport.removeEventListener("resize", this._onResize);
+    }
     this.onPanUp();
     if (this._panBound) {
       this._panBound.removeEventListener("pointerdown", this.onPanDown);
@@ -2305,6 +2345,10 @@ class Component extends DCLogic {
       // A PDF sheet is zoomed by its own viewer toolbar, so the viewer's
       // zoom slider would be inert — hide it rather than show a dead control.
       zoomDisplay: is2D && spec.sheetPdf ? "none" : "flex",
+      // The floating toolbar pill (phone's toolbarPlace) sits bottom-center
+      // and would otherwise overlap the zoom slider's usual bottom-right
+      // corner spot, so the zoom row moves up to clear it on phone only.
+      zoomBottom: m.toolbarPlace === "floating" ? "78px" : "16px",
       sheetImgDisplay: spec.sheetPdf ? "none" : "block",
       sheetPdfDisplay: spec.sheetPdf ? "block" : "none",
       onPanReset: () => { this._pan = { x: 0, y: 0 }; this.setState({ zoom: 12 }); this.applyPan(true); },
@@ -2324,6 +2368,16 @@ class Component extends DCLogic {
       frameScale: s.fit,
       fitW: Math.round((m.screenW + m.bezelPad * 2) * s.fit),
       fitH: Math.round((m.screenH + m.bezelPad * 2) * s.fit),
+      // pc keeps the "shrunk mockup floating on a white page" presentation
+      // (padding + a small centering offset around the scaled-down frame);
+      // tablet/phone are full-bleed now, so the frame must reach every true
+      // screen edge with nothing around it, and any inset needed for a notch
+      // or the iOS home indicator comes from safeAreaPad below instead.
+      outerPad: this.state.device === "pc" ? "14px 14px" : "0px",
+      outerLeft: this.state.device === "pc" ? "-7px" : "0px",
+      outerTop: this.state.device === "pc" ? "-3px" : "0px",
+      safeAreaPad: this.state.device === "pc" ? "0px" :
+        "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)",
       showStatus: m.statusH > 0,
       statusH: m.statusH,
       headerH: m.headerH,
