@@ -1070,6 +1070,23 @@ class Component extends DCLogic {
 
   isTouchMode() { return this.state.device !== "pc"; }
 
+  // Guesses from the actual visiting device rather than defaulting to "pc"
+  // — a touch device with no mouse is a phone or tablet, split at 1000px on
+  // its longer edge (a large phone in landscape tops out ~930px on current
+  // hardware; the smallest iPads start at 1024px+). Mirrors Home Screen's
+  // own guessDevice(); kept in sync there since normal navigation goes
+  // through its explicit picker first — this only matters when Detail
+  // Viewer is opened directly (a bookmark, a shared link) with no URL param
+  // and nothing saved yet.
+  guessDevice() {
+    try {
+      const touch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      if (!touch) return "pc";
+      const longEdge = Math.max(window.innerWidth, window.innerHeight);
+      return longEdge < 1000 ? "phone" : "tablet";
+    } catch (e) { return "pc"; }
+  }
+
   // The URL param is the transport between the home screen and the viewer;
   // storage is a best-effort memory. Whatever the viewer resolves is written
   // back, so a later query-less load can't come up in a mode nobody picked.
@@ -1082,8 +1099,8 @@ class Component extends DCLogic {
         const saved = window.localStorage.getItem("gv.deviceMode");
         if (saved && Component.MODES[saved]) d = saved;
       }
-    } catch (e) { /* storage blocked — fall back to pc */ }
-    const mode = d || "pc";
+    } catch (e) { /* storage blocked — fall back to guessDevice() */ }
+    const mode = d || this.guessDevice();
     try { window.localStorage.setItem("gv.deviceMode", mode); } catch (e) {}
     this.setState({ device: mode, fit: this.fitScale(mode) });
   }

@@ -86,12 +86,32 @@ class Component extends DCLogic {
 
   static KEYS = ["pc", "tablet", "phone"];
 
+  // A saved choice always wins. Otherwise, guess from the actual visiting
+  // device instead of defaulting to "PC" for everyone: a touch device with
+  // no mouse is either a phone or a tablet, split at 1000px on its longer
+  // edge (so a large phone in landscape — max ~930px on current hardware —
+  // still reads as "phone", while the smallest iPads — 1024px+ — read as
+  // "tablet"). A phone visitor landing on the un-picked default was
+  // otherwise silently getting pc's desktop layout, letterboxed to fit —
+  // the actual cause of a "white bars down both sides" report.
+  guessDevice() {
+    try {
+      const touch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      if (!touch) return 0;
+      const longEdge = Math.max(window.innerWidth, window.innerHeight);
+      return longEdge < 1000 ? Component.KEYS.indexOf("phone") : Component.KEYS.indexOf("tablet");
+    } catch (e) { return 0; }
+  }
+
   componentDidMount() {
+    let idx = null;
     try {
       const saved = window.localStorage.getItem("gv.deviceMode");
       const i = Component.KEYS.indexOf(saved);
-      if (i >= 0) this.setState({ device: i });
+      if (i >= 0) idx = i;
     } catch (e) { /* storage blocked */ }
+    if (idx === null) idx = this.guessDevice();
+    this.setState({ device: idx });
   }
 
   pick(i) {
