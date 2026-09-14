@@ -1828,6 +1828,10 @@ class Component extends DCLogic {
     { test: /^Floor[_\s]Beam[_\s]\d+$/i, name: "Floor Beam" }
   ];
 
+  // These names stay identical across every instance instead of getting a
+  // disambiguating " 2", " 3", … suffix like other repeated parts do.
+  static NO_DEDUPE_SUFFIX = new Set(["floor beam", "tile pedestals"]);
+
   // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
   // Strip the exporter's id, drop the stage prefix, collapse the duplicated
   // half most exporters append, and title-case what is left.
@@ -2019,7 +2023,7 @@ class Component extends DCLogic {
       const k = base.toLowerCase();
       const n = (seen.get(k) || 0) + 1;
       seen.set(k, n);
-      return { name: n > 1 ? base + " " + n : base, node };
+      return { name: (n > 1 && !Component.NO_DEDUPE_SUFFIX.has(k)) ? base + " " + n : base, node };
     });
     this.components = found;
     // Product information carried by the model's own objects, keyed by the
