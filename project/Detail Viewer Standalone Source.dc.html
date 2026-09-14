@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="assets/icon-192.png">
 <meta name="theme-color" content="#131313">
@@ -1052,16 +1052,19 @@ class Component extends DCLogic {
   // pc keeps its fixed reference size (a mockup shown scaled-down inside a
   // desktop browser). Tablet/phone are opened full-bleed on the actual
   // device, so their screenW/screenH come from the live viewport instead of
-  // a fixed reference — visualViewport is preferred where available since it
-  // tracks the real visible area (excluding a collapsed on-screen keyboard,
-  // etc.) more accurately than innerWidth/innerHeight on mobile.
+  // a fixed reference. document.documentElement.clientWidth/Height (the
+  // layout viewport) is used rather than window.visualViewport, which
+  // shrinks with the page's pinch-zoom scale — sizing the frame from that
+  // left it smaller than the true screen (centered, with a visible margin
+  // either side) any time Safari's zoom wasn't exactly 1x, e.g. after a
+  // pinch gesture. The layout viewport stays full-width regardless of zoom.
   mode() {
     const m = Component.MODES[this.state.device] || Component.MODES.pc;
     if (this.state.device === "pc") return m;
-    const vv = window.visualViewport;
+    const de = document.documentElement;
     return Object.assign({}, m, {
-      screenW: Math.round(vv ? vv.width : window.innerWidth),
-      screenH: Math.round(vv ? vv.height : window.innerHeight)
+      screenW: Math.round(de ? de.clientWidth : window.innerWidth),
+      screenH: Math.round(de ? de.clientHeight : window.innerHeight)
     });
   }
 
