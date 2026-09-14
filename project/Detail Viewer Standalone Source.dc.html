@@ -429,8 +429,13 @@ class Component extends DCLogic {
   // Deliberate device modes. The chosen mode fully owns the layout; window size
   // only scales the whole frame down to fit (never reflows into another mode).
   static MODES = {
+    // screenW/screenH are placeholders for every mode now — mode() overwrites
+    // all three with the live viewport, full-bleed with no scaling, no bezel
+    // chrome and no rounded screen corners (which would otherwise show the
+    // page's own background peeking through the cutout at the true browser
+    // edge).
     pc: {
-      screenW: 1760, screenH: 990, bezelPad: 0, bezelRadius: 12, screenRadius: 12,
+      screenW: 1760, screenH: 990, bezelPad: 0, bezelRadius: 0, screenRadius: 0,
       bezelBg: "transparent", bezelShadow: "none", statusH: 0,
       headerH: 70, logoColW: 234, logoW: 200, asideW: 224, pickerW: 252, pickerMR: 22,
       toolbarSize: "lg", toolbarPlace: "header", asideMode: "fixed", gizmoSize: 78, zoomW: 96
@@ -1059,18 +1064,16 @@ class Component extends DCLogic {
 
   // ---- device mode ------------------------------------------------------
 
-  // pc keeps its fixed reference size (a mockup shown scaled-down inside a
-  // desktop browser). Tablet/phone are opened full-bleed on the actual
-  // device, so their screenW/screenH come from the live viewport instead of
-  // a fixed reference. document.documentElement.clientWidth/Height (the
+  // Every mode is opened full-bleed on the real viewport now — pc included —
+  // so screenW/screenH always come from the live viewport rather than a
+  // fixed reference. document.documentElement.clientWidth/Height (the
   // layout viewport) is used rather than window.visualViewport, which
   // shrinks with the page's pinch-zoom scale — sizing the frame from that
   // left it smaller than the true screen (centered, with a visible margin
-  // either side) any time Safari's zoom wasn't exactly 1x, e.g. after a
+  // either side) any time the browser's zoom wasn't exactly 1x, e.g. after a
   // pinch gesture. The layout viewport stays full-width regardless of zoom.
   mode() {
     const m = Component.MODES[this.state.device] || Component.MODES.pc;
-    if (this.state.device === "pc") return m;
     const de = document.documentElement;
     return Object.assign({}, m, {
       screenW: Math.round(de ? de.clientWidth : window.innerWidth),
@@ -1118,26 +1121,22 @@ class Component extends DCLogic {
     // system) so that *any* gap, on *any* phone/tablet shape this app
     // ends up viewed on, shows the home screen's dark color instead of
     // the browser's plain white default, rather than chasing each gap
-    // individually as a new device surfaces it.
+    // individually as a new device surfaces it. By input type (matching
+    // the @media(pointer:coarse) rule), not by mode string — pc can be
+    // picked manually on a touch device same as any other mode.
     try {
-      const bg = mode === "pc" ? "#ffffff" : "#131313";
+      const touch = window.matchMedia && window.matchMedia("(pointer: coarse)").matches;
+      const bg = touch ? "#131313" : "#ffffff";
       document.documentElement.style.backgroundColor = bg;
       document.body.style.backgroundColor = bg;
     } catch (e) {}
     this.setState({ device: mode, fit: this.fitScale(mode) });
   }
 
-  // Tablet/phone render at exactly the live viewport size (see mode()), so
-  // there is nothing left to scale down — only pc's fixed mockup frame needs
-  // shrinking to fit inside whatever browser window it's opened in.
-  fitScale(device) {
-    const dev = device || this.state.device;
-    if (dev !== "pc") return 1;
-    const m = Component.MODES.pc;
-    const w = m.screenW + m.bezelPad * 2, h = m.screenH + m.bezelPad * 2;
-    const availW = Math.max(240, window.innerWidth - 28);
-    const availH = Math.max(240, window.innerHeight - 28);
-    return Math.min(1, availW / w, availH / h);
+  // Every mode renders at exactly the live viewport size now (see mode()),
+  // so there is nothing left to scale down.
+  fitScale() {
+    return 1;
   }
 
   componentWillUnmount() {
@@ -2513,23 +2512,21 @@ class Component extends DCLogic {
       frameScale: s.fit,
       fitW: Math.round((m.screenW + m.bezelPad * 2) * s.fit),
       fitH: Math.round((m.screenH + m.bezelPad * 2) * s.fit),
-      // pc keeps the "shrunk mockup floating on a white page" presentation
-      // (padding + a small centering offset around the scaled-down frame);
-      // tablet/phone are full-bleed now, so the frame must reach every true
-      // screen edge with nothing around it, and any inset needed for a notch
-      // or the iOS home indicator comes from safeAreaPad below instead.
-      outerPad: this.state.device === "pc" ? "14px 14px" : "0px",
-      outerLeft: this.state.device === "pc" ? "-7px" : "0px",
-      outerTop: this.state.device === "pc" ? "-3px" : "0px",
-      // The white margin around the frame (visible in the safe-area gap —
-      // position:fixed inside the scaled frame aligns to the frame's padding
-      // box, not the true viewport, since a non-"none" transform anywhere up
-      // the tree redirects fixed descendants to that ancestor) now matches
-      // the home screen's dark background on tablet/phone instead of white,
-      // for both the rotate prompt and the normal full-bleed layout.
-      outerBg: this.state.device === "pc" ? "#ffffff" : "#131313",
-      safeAreaPad: this.state.device === "pc" ? "0px" :
-        "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)",
+      // Every mode is full-bleed now, so the frame reaches every true screen
+      // edge with nothing around it — no padding or centering offset for any
+      // device — and any inset needed for a notch or the iOS home indicator
+      // comes from safeAreaPad instead (harmless on a plain desktop browser:
+      // env() just resolves to 0 with nothing to inset around).
+      outerPad: "0px",
+      outerLeft: "0px",
+      outerTop: "0px",
+      // Matches the base html/body background (see the @media(pointer:coarse)
+      // rule and applyDeviceMode()): a mouse/trackpad visitor gets white, a
+      // touch visitor gets the home screen's dark color — by input type, not
+      // by which device MODE happens to be selected, since pc can be picked
+      // manually on a touch device same as any other mode.
+      outerBg: (window.matchMedia && window.matchMedia("(pointer: coarse)").matches) ? "#131313" : "#ffffff",
+      safeAreaPad: "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)",
       // Phone is designed for landscape; a taller-than-wide live viewport
       // means it's actually being held in portrait right now, so show the
       // rotate prompt instead of the (in that orientation, too-narrow) layout.
