@@ -14,6 +14,18 @@ user actually uses.
 Never edit `Detail Viewer.html` directly. Verifying only the source file will pass
 while the shipped viewer stays broken.
 
+**Outside Claude Design** (e.g. a coding agent with no `super_inline_html` tool),
+use `python3 pack.py` instead — it reproduces the same `__bundler/manifest` +
+`ext_resources` + `page_order` + `template` bundle format by inlining the same
+inputs (verified byte-for-byte identical output, modulo a couple of inert
+cosmetic differences — see the diff notes in the packer's own commit/history).
+CDN dependencies (Google Fonts, pdf.js, react/react-dom/babel) are cached in
+`.pack_cache.json` after the first run, so routine local edits never need
+network access; pass `--refresh-cdn` to force re-fetching them. three.js stays
+a live `unpkg.com` import either way (loaded via an ES-module importmap, which
+can't be redirected to an embedded blob: URL) — the viewer needs real internet
+access for the 3D canvas to render, in Claude Design or standalone.
+
 ## Model conventions
 
 Assembly stages come ONLY from per-object glTF extras — object names are never used:
