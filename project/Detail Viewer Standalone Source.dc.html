@@ -167,6 +167,7 @@ input[type=range][data-touch="1"]::-moz-range-thumb{width:22px;height:22px}
 </sc-if>
 
 </header><div style="position:relative;flex:1;min-height:0;display:flex;gap:1px;background:rgba(255,255,255,.045)">
+<sc-if value="{{ !is2D }}" hint-placeholder-val="{{ true }}">
 <aside style="width:{{ asideW }}px;flex:none;position:{{ asidePos }};left:0;top:0;bottom:0;z-index:40;transform:translateX({{ asideX }});transition:transform 340ms cubic-bezier(.22,.7,.3,1);display:flex;flex-direction:column;gap:1px;background:rgba(255,255,255,.045);box-shadow:{{ asideShadow }}">
 <div style="position:relative;flex:1;background-color:#e0e2e1;background-image:url(assets/graphite-grain.png),linear-gradient(178deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,0) 26%),radial-gradient(ellipse 92% 78% at 44% 22%, #f5f6f5 0%, #ebeceb 44%, #dcdedd 100%);background-repeat:repeat,no-repeat,no-repeat;background-size:104px 104px,cover,cover;background-blend-mode:overlay,normal,normal;border-top-left-radius:6px;border-top-right-radius:3px;border-bottom-left-radius:3px;border-bottom-right-radius:3px;box-shadow:inset 0 1px 0 rgba(255,255,255,.62),inset 0 0 0 1px rgba(40,48,44,.045),inset 0 -14px 24px -18px rgba(40,48,44,.3)">
 <div style="position:absolute;inset:0;padding:16px 14px 14px 13px;display:flex;flex-direction:column;gap:13px;overflow-y:auto;font-family:'Archivo',system-ui,sans-serif">
@@ -280,7 +281,9 @@ input[type=range][data-touch="1"]::-moz-range-thumb{width:22px;height:22px}
 </div>
 </div>
 </div>
-</aside><main style="flex: 1; min-width: 0; position: relative; background-color: #e0e2e1; background-image: url(assets/graphite-grain.png), linear-gradient(178deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,0) 26%), radial-gradient(ellipse 92% 78% at 44% 22%, #f5f6f5 0%, #ebeceb 44%, #dcdedd 100%); background-repeat: repeat, no-repeat, no-repeat; background-size: 104px 104px, cover, cover; background-blend-mode: overlay, normal, normal; box-shadow: inset 0 1px 0 rgba(255,255,255,.62), inset 0 0 0 1px rgba(40,48,44,.045), inset 0 -14px 24px -18px rgba(40,48,44,.3); overflow: hidden; border-radius: 3px; border-top-right-radius: 6px; border-bottom-right-radius: 6px">
+</aside>
+</sc-if>
+<main style="flex: 1; min-width: 0; position: relative; background-color: #e0e2e1; background-image: url(assets/graphite-grain.png), linear-gradient(178deg, rgba(255,255,255,.5) 0%, rgba(255,255,255,0) 26%), radial-gradient(ellipse 92% 78% at 44% 22%, #f5f6f5 0%, #ebeceb 44%, #dcdedd 100%); background-repeat: repeat, no-repeat, no-repeat; background-size: 104px 104px, cover, cover; background-blend-mode: overlay, normal, normal; box-shadow: inset 0 1px 0 rgba(255,255,255,.62), inset 0 0 0 1px rgba(40,48,44,.045), inset 0 -14px 24px -18px rgba(40,48,44,.3); overflow: hidden; border-radius: 3px; border-top-right-radius: 6px; border-bottom-right-radius: 6px">
 <div style="position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 38% 32% at 43% 30%, rgba(255,255,255,.5), rgba(255,255,255,0) 72%)"></div>
 
 <sc-if value="{{ noModel }}" hint-placeholder-val="{{ false }}">
