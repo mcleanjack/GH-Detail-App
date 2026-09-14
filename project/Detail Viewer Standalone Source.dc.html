@@ -1820,11 +1820,20 @@ class Component extends DCLogic {
     return lines.concat(d.tree || []).join("\n");
   }
 
+  // A few exporter names are technically accurate but read poorly in the
+  // panel (manufacturer/model strings instead of what the part is) — swap
+  // those in before the generic cleanup below runs.
+  static NAME_OVERRIDES = [
+    { test: /^Structural_Pedestals_Bison-Innovative-Products_Screwjack_B4_/i, name: "Tile Pedestals" }
+  ];
+
   // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
   // Strip the exporter's id, drop the stage prefix, collapse the duplicated
   // half most exporters append, and title-case what is left.
   static prettyName(raw) {
-    let s = String(raw || "").replace(/[_\s-]*\d{4,}$/, "");
+    const raw0 = String(raw || "");
+    for (const o of Component.NAME_OVERRIDES) { if (o.test.test(raw0)) return o.name; }
+    let s = raw0.replace(/[_\s-]*\d{4,}$/, "");
     s = s.replace(/(?:^|[_\s-])(?:step|stage|phase|seq)[_\s-]*0*\d+[_\s-]*-?[_\s-]*/gi, " ");
     s = s.replace(/[_]+/g, " ").replace(/\s+/g, " ").trim();
     let w = s.split(" ").filter(Boolean);
