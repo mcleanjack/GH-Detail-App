@@ -705,8 +705,12 @@ class Component extends DCLogic {
       const pdf = await lib.getDocument({ data: await blob.arrayBuffer() }).promise;
       const page = await pdf.getPage(1);
       const base = page.getViewport({ scale: 1 });
-      // ~2400px on the long edge keeps fine drawing linework legible at zoom.
-      const viewport = page.getViewport({ scale: Math.min(4, 2400 / Math.max(base.width, base.height)) });
+      // ~3200px on the long edge — as high as this safely goes: iOS Safari
+      // silently fails/blanks a <canvas> above roughly 16 million total
+      // pixels (~4096x4096), so this stays comfortably under that even for
+      // a near-square sheet, while still meaningfully sharper than before
+      // once the in-app zoom is pushed toward its max (~3.3x).
+      const viewport = page.getViewport({ scale: Math.min(6, 3200 / Math.max(base.width, base.height)) });
       const canvas = document.createElement("canvas");
       canvas.width = Math.round(viewport.width);
       canvas.height = Math.round(viewport.height);
