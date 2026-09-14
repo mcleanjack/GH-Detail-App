@@ -567,7 +567,9 @@ class Component extends DCLogic {
     set(this.panPdf.current, pdf ? src + "#view=FitH&toolbar=1" : "");
   }
 
-  panScale() { return 0.7 + (this.state.zoom / 100) * 2.6; }
+  // Accepts a live value during a pinch gesture (see onPanMove) so the sheet
+  // can be rescaled every touch event without waiting on React state/render.
+  panScale(zoom) { return 0.7 + ((zoom != null ? zoom : this.state.zoom) / 100) * 2.6; }
 
   // ---- gated model import / removal ------------------------------------
 
@@ -996,10 +998,10 @@ class Component extends DCLogic {
     }, () => this.loadModel());
   }
 
-  clampPan() {
+  clampPan(zoom) {
     const img = this.panImg.current, wrap = this.panWrap.current;
     if (!img || !wrap) return;
-    const s = this.panScale();
+    const s = this.panScale(zoom);
     const maxX = Math.max(0, (img.offsetWidth * s - wrap.clientWidth) / 2);
     const maxY = Math.max(0, (img.offsetHeight * s - wrap.clientHeight) / 2);
     this._pan = {
@@ -1008,14 +1010,19 @@ class Component extends DCLogic {
     };
   }
 
-  applyPan(animate) {
+  // zoom is an optional live override so a pinch gesture (see onPanMove) can
+  // redraw the sheet every touch event straight from the pointer math,
+  // without going through setState/render — that round trip is what made
+  // pinch-zoom feel slow and stuttery on iPad/iPhone versus the one-finger
+  // drag, which was already imperative like this.
+  applyPan(animate, zoom) {
     const spec = Component.MODELS[this.state.model] || {};
     if (spec.sheetPdf) return;
     const img = this.panImg.current;
     if (!img) return;
-    this.clampPan();
+    this.clampPan(zoom);
     img.style.transition = animate ? "transform 140ms ease-out" : "none";
-    img.style.transform = "translate(" + this._pan.x + "px," + this._pan.y + "px) scale(" + this.panScale().toFixed(3) + ")";
+    img.style.transform = "translate(" + this._pan.x + "px," + this._pan.y + "px) scale(" + this.panScale(zoom).toFixed(3) + ")";
   }
 
   bindPan() {
@@ -1058,6 +1065,20 @@ class Component extends DCLogic {
     window.addEventListener("pointercancel", this.onPanUp, true);
   }
 
+  // Commits the live pinch zoom into React state (for the % readout/slider)
+  // at most once per animation frame, instead of once per touch event —
+  // touch delivers pointermove far faster than the screen can redraw, so
+  // a setState (full render) on every one of them is what made this feel
+  // slow and glitchy. The sheet itself is already rescaled immediately,
+  // every event, straight through the DOM (see onPanMove) — only the
+  // state sync (which nothing visual depends on mid-gesture) is throttled.
+  flushPinchZoom() {
+    this._pinchRaf = null;
+    if (this._pinchZoom != null && Math.abs(this._pinchZoom - this.state.zoom) > 0.05) {
+      this.setState({ zoom: this._pinchZoom });
+    }
+  }
+
   onPanMove(e) {
     if (this._pts && this._pts.has(e.pointerId)) this._pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (this._pinch && this._pts && this._pts.size >= 2) {
@@ -1065,7 +1086,9 @@ class Component extends DCLogic {
       const [a, b] = Array.from(this._pts.values());
       const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
       const v = Math.max(0, Math.min(100, this._pinch.z + (d / this._pinch.d - 1) * 62));
-      if (Math.abs(v - this.state.zoom) > 0.5) this.setState({ zoom: v });
+      this._pinchZoom = v;
+      this.applyPan(false, v);
+      if (this._pinchRaf == null) this._pinchRaf = requestAnimationFrame(this._flushPinchZoomBound || (this._flushPinchZoomBound = this.flushPinchZoom.bind(this)));
       return;
     }
     const d = this._drag;
@@ -1088,6 +1111,9 @@ class Component extends DCLogic {
     this._pinch = null;
     this._drag = null;
     if (this._pts) this._pts.clear();
+    // The gesture is over — commit the final zoom right away rather than
+    // waiting on the next animation frame that may never come.
+    if (this._pinchRaf != null) { cancelAnimationFrame(this._pinchRaf); this.flushPinchZoom(); }
     if (this._panBound) this._panBound.style.cursor = "grab";
     window.removeEventListener("pointermove", this.onPanMove, true);
     window.removeEventListener("pointerup", this.onPanUp, true);
