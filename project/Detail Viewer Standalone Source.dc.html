@@ -1824,7 +1824,8 @@ class Component extends DCLogic {
   // panel (manufacturer/model strings instead of what the part is) — swap
   // those in before the generic cleanup below runs.
   static NAME_OVERRIDES = [
-    { test: /^Structural_Pedestals_Bison-Innovative-Products_Screwjack_B4_/i, name: "Tile Pedestals" }
+    { test: /^Structural_Pedestals_Bison-Innovative-Products_Screwjack_B4_/i, name: "Tile Pedestals" },
+    { test: /^Floor[_\s]Beam[_\s]\d+$/i, name: "Floor Beam" }
   ];
 
   // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
