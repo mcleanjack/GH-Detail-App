@@ -255,9 +255,15 @@ def build_template(source_path, manifest, ext_resources, cache, refresh):
     #    Large content files (built-in .glb models, PDF sheets) are excluded —
     #    those are meant to stay separate static files fetched on demand
     #    (e.g. spec.url in a MODELS entry), not inlined into the HTML bundle.
+    #    The PWA icons are excluded too: manifest.webmanifest references them
+    #    by their real path, and Safari's "Add to Home Screen" reads the
+    #    apple-touch-icon <link> href directly — inlining would replace that
+    #    path with a bundler UUID that's only meaningful to this page's own
+    #    unpacker script, not to manifest.webmanifest or Safari.
     NOT_INLINED_EXTS = (".glb", ".gltf", ".pdf")
+    NOT_INLINED_NAMES = {"assets/icon-192.png", "assets/icon-512.png"}
     for m in sorted(set(re.findall(r"assets/[A-Za-z0-9._%-]+", html))):
-        if m.lower().endswith(NOT_INLINED_EXTS):
+        if m.lower().endswith(NOT_INLINED_EXTS) or m in NOT_INLINED_NAMES:
             continue
         asset_path = os.path.join(PROJECT_DIR, m)
         if os.path.exists(asset_path):
