@@ -708,9 +708,19 @@ class Component extends DCLogic {
       canvas.width = Math.round(viewport.width);
       canvas.height = Math.round(viewport.height);
       const ctx = canvas.getContext("2d");
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      await page.render({ canvasContext: ctx, viewport }).promise;
+      // No white fill first — render onto a transparent canvas (background:
+      // "rgba(0,0,0,0)" stops pdf.js painting its own opaque page backdrop),
+      // then turn the white paper into transparency: a pixel's darkness
+      // becomes its opacity, so pure white -> fully transparent and black
+      // ink -> fully opaque, leaving only the linework visible.
+      await page.render({ canvasContext: ctx, viewport, background: "rgba(0,0,0,0)" }).promise;
+      const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+      const d = img.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const ink = 255 - Math.min(d[i], d[i + 1], d[i + 2]);
+        d[i + 3] = Math.round(ink * (d[i + 3] / 255));
+      }
+      ctx.putImageData(img, 0, 0);
       spec.sheet = canvas.toDataURL("image/png");
       spec.sheetPdf = false;
       spec.sheetPages = pdf.numPages;
@@ -2315,13 +2325,6 @@ class Component extends DCLogic {
     this.tint(h, 0x4e9e79, e * 0.85);
   }
 
-  cycleComponent(dir) {
-    const list = this.components || [];
-    if (!list.length) return;
-    const at = list.indexOf(this._selected);
-    this.setSelection(list[(at + dir + list.length) % list.length]);
-  }
-
   cycleStage(dir) {
     const total = this.state.stageCount || 0;
     if (total < 2) return;
@@ -2419,7 +2422,7 @@ class Component extends DCLogic {
       promptHint: is2D
         ? (spec.sheetPdf ? "Imported PDF detail. Switch to 3D for product data."
           : (this.isTouchMode() ? "Pinch to zoom, drag to move. Switch to 3D for product data." : "Scroll to zoom, drag to move. Switch to 3D for product data."))
-        : (this.isTouchMode() ? "Tap a part to select it, tap empty space to clear, or use the cycle icon above." : "Hover to preview a part, click to isolate it, or click on the cycle icon above."),
+        : (this.isTouchMode() ? "Tap a part to select it, tap empty space to clear." : "Hover to preview a part, click to isolate it."),
       loadError: s.loadError || "",
       hasLoadError: !!s.loadError,
       showDiag: !!s.showDiag,
@@ -2476,12 +2479,13 @@ class Component extends DCLogic {
       outerPad: this.state.device === "pc" ? "14px 14px" : "0px",
       outerLeft: this.state.device === "pc" ? "-7px" : "0px",
       outerTop: this.state.device === "pc" ? "-3px" : "0px",
-      // Matches the rotate prompt's own background: position:fixed inside the
-      // scaled frame aligns to the frame's padding box, not the true
-      // viewport (a non-"none" transform anywhere up the tree redirects fixed
-      // descendants to that ancestor), so the safe-area gap around the
-      // prompt would otherwise show the page's white background through it.
-      outerBg: this.state.device === "phone" && m.screenH > m.screenW ? "#131313" : "#ffffff",
+      // The white margin around the frame (visible in the safe-area gap —
+      // position:fixed inside the scaled frame aligns to the frame's padding
+      // box, not the true viewport, since a non-"none" transform anywhere up
+      // the tree redirects fixed descendants to that ancestor) now matches
+      // the home screen's dark background on tablet/phone instead of white,
+      // for both the rotate prompt and the normal full-bleed layout.
+      outerBg: this.state.device === "pc" ? "#ffffff" : "#131313",
       safeAreaPad: this.state.device === "pc" ? "0px" :
         "env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)",
       // Phone is designed for landscape; a taller-than-wide live viewport
@@ -2554,8 +2558,11 @@ class Component extends DCLogic {
       prev: () => this.cycleStage(-1),
       next: () => this.cycleStage(1),
       hiddenTools: [
-        is2D ? "prev,next,cycle,orbit" : ((s.stageCount || 0) < 2 ? "prev,next" : ""),
-        (spec.sheet || spec.name) ? "" : "orbit"
+        is2D ? "prev,next,orbit" : ((s.stageCount || 0) < 2 ? "prev,next" : ""),
+        // s.picked, not just spec.name — the built-in model's spec has a
+        // name from boot, before anything is actually picked (see loadModel's
+        // picked gate), so name-only would show the 2D toggle prematurely.
+        (s.picked && (spec.sheet || spec.name)) ? "" : "orbit"
       ].filter(Boolean).join(","),
       modelName: s.picked ? (spec.name || "Import a model") : (Component.MODELS.length ? "Select a model" : "Import a model"),
       pickerOpen: s.pickerOpen,
@@ -2622,8 +2629,7 @@ class Component extends DCLogic {
       stageShift: s.stageShown ? "0px" : "8px",
       activeTool: s.tool,
       onToolSelect: (id) => {
-        if (id === "cycle") this.cycleComponent(1);
-        else if (id === "prev") this.cycleStage(-1);
+        if (id === "prev") this.cycleStage(-1);
         else if (id === "next") this.cycleStage(1);
         else if (id === "cube") { this.setZoom(52, true); this.snap([1, 0.78, 1.1]); this.setState({ tool: "cube", zoom: 52 }); }
         else if (id === "orbit") { this._pan = { x: 0, y: 0 }; this.setState({ tool: "orbit", zoom: 12 }); }

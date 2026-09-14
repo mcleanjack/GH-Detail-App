@@ -24,12 +24,6 @@ const ICON = {
     React.createElement('path', {key: 'a', d: 'M12 2.6 20.9 7.3v9.4L12 21.4 3.1 16.7V7.3z'}),
     React.createElement('path', {key: 'b', d: 'M12 12 20.9 7.3M12 12 3.1 7.3M12 12v9.4'})
   ]),
-  cycle: (c, s) => svg(c, s)([
-    React.createElement('path', {key: 'a', d: 'M6.2 11.4V9.6a3.4 3.4 0 0 1 3.4-3.4h7.6'}),
-    React.createElement('path', {key: 'b', d: 'm15.4 3.4 2.9 2.8-2.9 2.8'}),
-    React.createElement('path', {key: 'c', d: 'M17.8 12.6v1.8a3.4 3.4 0 0 1-3.4 3.4H6.8'}),
-    React.createElement('path', {key: 'd', d: 'm8.6 20.6-2.9-2.8 2.9-2.8'})
-  ]),
   orbit: (c, s) => svg(c, s)([
     React.createElement('rect', {key: 'r', x: 3.1, y: 3.1, width: 17.8, height: 17.8, rx: 1.6})
   ])
@@ -41,13 +35,12 @@ const SIZES = {sm: {w: 36, h: 30, icon: 16}, md: {w: 44, h: 36, icon: 20}, touch
 const TOOLS = [
   {id: 'prev', label: 'Previous stage', toggle: true},
   {id: 'next', label: 'Next stage', toggle: true},
-  {id: 'cycle', label: 'Cycle model components', toggle: false},
   {id: 'cube', label: '3D / isometric view', toggle: true},
   {id: 'orbit', label: 'Orbit & pan tool', toggle: true}
 ];
 
 class Component extends DCLogic {
-  state = {active: null, flash: null, spins: 0};
+  state = {active: null, flash: null};
 
   componentWillUnmount() { clearTimeout(this._flashT); }
 
@@ -72,7 +65,7 @@ class Component extends DCLogic {
         pressed: t.toggle ? (on ? 'true' : 'false') : undefined,
         disabled: off || undefined,
         icon: ICON[t.id](color, z.icon),
-        spin: t.id === 'cycle' ? (this.state.spins * 180) + 'deg' : '0deg',
+        spin: '0deg',
         style: 'display: flex; align-items: center; justify-content: center; width: ' + z.w + 'px; height: ' + z.h + 'px; border: none; border-left: 0 none transparent; outline: none; padding: 0; transition: background 120ms ease; cursor: ' + (off ? 'default' : 'pointer')
           + '; border-radius: 4px'
           + '; transition: background 140ms ease, box-shadow 180ms ease, filter 180ms ease'
@@ -84,7 +77,6 @@ class Component extends DCLogic {
         styleActive: off ? 'background: transparent' : 'background: linear-gradient(128deg, #1f1f1e 0%, #262625 50%, #2e2e2d 100%); box-shadow: inset 0 3px 7px rgba(0,0,0,.7)',
         onClick: () => {
           if (off) return;
-          if (t.id === 'cycle') this.setState(p => ({spins: p.spins + 1}));
           if (t.toggle) this.setState({active: t.id});
           else {
             clearTimeout(this._flashT);
