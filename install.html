@@ -52,8 +52,6 @@
   <!-- Device-specific instructions -->
   <div id="steps" style="width:100%;display:flex;flex-direction:column;gap:14px"></div>
 
-  <button type="button" id="copyBtn" style="border:none;background:transparent;cursor:pointer;padding:4px;font-family:'Archivo',system-ui,sans-serif;font-size:10.5px;font-weight:600;letter-spacing:.06em;color:rgba(255,255,255,.4)">Copy this page's link</button>
-
 </div>
 </div>
 
@@ -114,14 +112,6 @@
       stepRow("3", "It opens in its own window from then on, like a desktop app.");
   }
   document.getElementById("steps").innerHTML = html;
-
-  document.getElementById("copyBtn").addEventListener("click", function () {
-    const btn = this;
-    navigator.clipboard.writeText(window.location.href).then(function () {
-      btn.textContent = "Copied!";
-      setTimeout(function () { btn.textContent = "Copy this page's link"; }, 1600);
-    }).catch(function () {});
-  });
 </script>
 
 </body>
