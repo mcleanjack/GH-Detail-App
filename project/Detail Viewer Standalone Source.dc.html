@@ -39,6 +39,12 @@
 <script type="importmap">{"imports":{"three":"https://unpkg.com/three@0.160.0/build/three.module.js","three/addons/":"https://unpkg.com/three@0.160.0/examples/jsm/"}}</script>
 <style>
 html,body{margin:0;min-height:100%;background:#ffffff;font-family:'Barlow',system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+/* Matches applyDeviceMode()'s JS fallback for the same case, but applies
+   before any JS runs at all — pointer:coarse is the same touch-device
+   signal guessDevice() uses, so any white gap this app is ever viewed
+   through on a phone/tablet shows the home screen's dark color from the
+   very first paint instead of the browser's plain white default. */
+@media (pointer: coarse) { html,body{background:#131313} }
 *{box-sizing:border-box}
 a{color:#8f8f8d}a:hover{color:#cfcfcd}
 @keyframes textPulse{0%,100%{opacity:.52}50%{opacity:1}}
@@ -1102,6 +1108,18 @@ class Component extends DCLogic {
     } catch (e) { /* storage blocked — fall back to guessDevice() */ }
     const mode = d || this.guessDevice();
     try { window.localStorage.setItem("gv.deviceMode", mode); } catch (e) {}
+    // Belt-and-braces beneath everything else in this file: the base
+    // html/body background is set directly (not through a template
+    // binding — untrusted for <style> tag content in this templating
+    // system) so that *any* gap, on *any* phone/tablet shape this app
+    // ends up viewed on, shows the home screen's dark color instead of
+    // the browser's plain white default, rather than chasing each gap
+    // individually as a new device surfaces it.
+    try {
+      const bg = mode === "pc" ? "#ffffff" : "#131313";
+      document.documentElement.style.backgroundColor = bg;
+      document.body.style.backgroundColor = bg;
+    } catch (e) {}
     this.setState({ device: mode, fit: this.fitScale(mode) });
   }
 
