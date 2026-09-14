@@ -252,7 +252,13 @@ def build_template(source_path, manifest, ext_resources, cache, refresh):
             html = re.sub(pattern, f'src="{uid}"', html, count=1)
 
     # 2. assets/*.png|jpg referenced anywhere (style url(...) or src="...").
+    #    Large content files (built-in .glb models, PDF sheets) are excluded —
+    #    those are meant to stay separate static files fetched on demand
+    #    (e.g. spec.url in a MODELS entry), not inlined into the HTML bundle.
+    NOT_INLINED_EXTS = (".glb", ".gltf", ".pdf")
     for m in sorted(set(re.findall(r"assets/[A-Za-z0-9._%-]+", html))):
+        if m.lower().endswith(NOT_INLINED_EXTS):
+            continue
         asset_path = os.path.join(PROJECT_DIR, m)
         if os.path.exists(asset_path):
             uid = embed_local_file(asset_path, manifest)

@@ -427,7 +427,15 @@ class Component extends DCLogic {
     }
   };
 
-  static MODELS = [];
+  // Built-in models ship with the app (in assets/, fetched by GLTFLoader via
+  // spec.url — the same lazy-load path an imported model's spec.buffer feeds,
+  // just streamed from a file instead of held in memory) so every visitor
+  // sees them with nothing to import. Anything a visitor imports themselves
+  // still only lives in their own browser's IndexedDB (see restoreImports) —
+  // add another entry here, plus the .glb in assets/, to make one permanent.
+  static MODELS = [
+    { name: "Balcony Parapet Detail", code: "BAL-001", url: "assets/balcony-parapet-detail.glb" }
+  ];
 
   // SHA-256 of the import passphrase. The plaintext is not present in this
   // bundle; swap this for a server-side check (POST the entry, verify a token)
