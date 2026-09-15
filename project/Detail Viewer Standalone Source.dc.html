@@ -1334,12 +1334,7 @@ class Component extends DCLogic {
       const pmrem = new THREE.PMREMGenerator(renderer);
       pmrem.compileEquirectangularShader();
       scene.environment = pmrem.fromScene(new this._envReady(), 0.04).texture;
-      // Nudged up slightly from 0.75: metal fixings and pedestals now get a
-      // real metalness value from polishModel()'s material categories, and
-      // a metallic surface reads mostly through what it reflects — too
-      // little environment light was leaving them looking flat/dark rather
-      // than like metal.
-      scene.environmentIntensity = 0.9;
+      scene.environmentIntensity = 0.75;
     }
 
     const catcher = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.19 }));
@@ -1924,52 +1919,6 @@ class Component extends DCLogic {
   // disambiguating " 2", " 3", … suffix like other repeated parts do.
   static NO_DEDUPE_SUFFIX = new Set(["floor beam", "tile pedestals"]);
 
-  // A CAD/BIM export's materials usually carry whatever base color the
-  // authoring tool assigned, but almost always the same generic mid-grey
-  // "shaded" surface finish regardless of what the part actually is — so
-  // steel fixings, timber framing and a plastic membrane all currently
-  // catch the light identically, which is the biggest tell that this is a
-  // technical export rather than a real object. This only ever adjusts
-  // roughness/metalness (how a surface scatters light) by matching the
-  // exporter's own part names against real-world material families — never
-  // color, since the export's own base colors are trusted and guessing at
-  // a replacement risks overriding one that was already correct. Checked
-  // top-down (first match wins), so put more specific patterns first.
-  static MATERIAL_CATEGORIES = [
-    // Small steel hardware: nails, screws, straps, joist hangers. \bscrews?\b
-    // (not a bare "screw") so it doesn't also swallow "Screwjack" below —
-    // that's a pedestal's own name, not a loose fixing.
-    { test: /fixing|\bscrews?\b|nail|strap|hanger/i, roughness: 0.3, metalness: 0.85 },
-    // Bison-style pedestal: a black polymer/rubber body with a steel
-    // thread, but the body is nearly all of what is visible.
-    { test: /pedestal|screwjack/i, roughness: 0.55, metalness: 0.12 },
-    // Ceramic/stone paver.
-    { test: /\btile/i, roughness: 0.4, metalness: 0.05 },
-    // Waterproofing membrane, building wrap, tray, adhesive.
-    { test: /membrane|wrap|tray|adhesive/i, roughness: 0.5, metalness: 0 },
-    // PVC drainage.
-    { test: /drain|overflow|pipe|vent/i, roughness: 0.35, metalness: 0 },
-    // Structural/dimensional timber.
-    { test: /beam|joist|batten|framing|starter/i, roughness: 0.68, metalness: 0 },
-    // Sheet/board linings and cladding.
-    { test: /blueboard|fibre.?cement|soffit|cladding/i, roughness: 0.75, metalness: 0 }
-  ];
-
-  // Walks up from a mesh to the nearest ancestor whose name matches a known
-  // material family — mirrors prettyName()'s own id-stripping export names,
-  // since a single component (e.g. "Balcony Tiles") is usually many meshes
-  // deep, not one.
-  static materialCategoryFor(node) {
-    let p = node;
-    while (p) {
-      if (p.name) {
-        for (const cat of Component.MATERIAL_CATEGORIES) { if (cat.test.test(p.name)) return cat; }
-      }
-      p = p.parent;
-    }
-    return null;
-  }
-
   // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
   // Strip the exporter's id, drop the stage prefix, collapse the duplicated
   // half most exporters append, and title-case what is left.
@@ -2241,7 +2190,6 @@ class Component extends DCLogic {
       o.castShadow = true;
       o.receiveShadow = true;
       if (o.geometry && !o.geometry.attributes.normal) o.geometry.computeVertexNormals();
-      const cat = Component.materialCategoryFor(o);
       const mats = Array.isArray(o.material) ? o.material : [o.material];
       mats.forEach(m => {
         if (!m) return;
@@ -2250,12 +2198,9 @@ class Component extends DCLogic {
           if (t && t.anisotropy !== maxAniso) { t.anisotropy = maxAniso; t.needsUpdate = true; }
         });
         if (m.envMapIntensity !== undefined) m.envMapIntensity = 1.15;
-        if (cat && m.roughness !== undefined && !m.roughnessMap) m.roughness = cat.roughness;
-        if (cat && m.metalness !== undefined && !m.metalnessMap) m.metalness = cat.metalness;
-        // Mirror-flat surfaces read as plastic under studio light; give any
-        // still-uncategorised bare material a touch of tooth so form is
-        // legible.
-        if (!cat && m.roughness !== undefined && m.roughness < 0.08 && !m.roughnessMap) m.roughness = 0.28;
+        // Mirror-flat surfaces read as plastic under studio light; give bare
+        // materials a touch of tooth so form is legible.
+        if (m.roughness !== undefined && m.roughness < 0.08 && !m.roughnessMap) m.roughness = 0.28;
         m.needsUpdate = true;
       });
     });
