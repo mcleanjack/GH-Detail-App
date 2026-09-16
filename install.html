@@ -15,6 +15,8 @@
   .card{animation:fadeUp 700ms cubic-bezier(.22,.7,.3,1) both}
   .step{display:none}
   .step.active{display:flex}
+  .platform-tab{font-family:'Archivo',system-ui,sans-serif;font-size:11.5px;font-weight:700;letter-spacing:.02em;border:0;border-radius:8px;padding:10px 0;flex:1;cursor:pointer;background:transparent;color:rgba(255,255,255,.45);transition:background 160ms ease,color 160ms ease}
+  .platform-tab.active{background:#e2e1df;color:#171c19}
 </style>
 </head>
 <body>
@@ -45,8 +47,17 @@
 
   <div style="display:flex;align-items:center;gap:9px;width:100%">
     <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
-    <div style="font-size:8px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3)">follow these steps</div>
+    <div style="font-size:8px;font-weight:600;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.3)">what's the phone?</div>
     <div style="flex:1;height:1px;background:rgba(255,255,255,.08)"></div>
+  </div>
+
+  <!-- This page is typically opened on a PC to show/send to a client, whose
+       own phone (the thing actually being installed onto) could be either
+       platform — so which set of steps to show can't just come from this
+       page's own device. Picking a tab overrides the auto-detected guess. -->
+  <div style="display:flex;gap:4px;width:100%;padding:4px;border-radius:11px;background:rgba(255,255,255,.05);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)">
+    <button id="tab-ios" class="platform-tab" type="button">iPhone / iPad</button>
+    <button id="tab-android" class="platform-tab" type="button">Android</button>
   </div>
 
   <!-- Device-specific instructions -->
@@ -92,43 +103,57 @@
   const isChromeAndroid = isAndroid && !isInAppBrowser &&
     /Chrome\//.test(ua) && !/SamsungBrowser|EdgA|OPR\/|; ?wv\)/.test(ua);
 
-  let html = "";
-  if (isStandalone) {
-    html = stepRow("&#10003;", "You're already using the installed app — nothing else to do here.");
-  } else if (isInAppBrowser) {
-    html = stepRow("!", "This link opened inside another app's built-in browser, which can't install apps. Tap the menu (usually ⋮ or •••) and choose <b>Open in Safari</b> or <b>Open in Chrome</b>, then come back to this page.");
-  } else if (isIOS) {
-    if (isSafari) {
-      html =
-        stepRow("1", "Scan the QR code above.") +
-        stepRow("2", "Tap the <b>Share</b> icon (square with an arrow) in Safari's toolbar.") +
-        stepRow("3", "Scroll down and tap <b>Add to Home Screen</b>.") +
-        stepRow("4", "Tap <b>Add</b> in the top right.");
-    } else {
-      html = stepRow("!", "On iPhone/iPad, installing only works from <b>Safari</b> — Apple doesn't allow other browsers to do this. Open this page in Safari, then follow the steps there.");
-    }
-  } else if (isAndroid) {
-    if (isChromeAndroid) {
-      html =
-        stepRow("1", "Scan the QR code above (or make sure this page is open in <b>Chrome</b>).") +
-        stepRow("2", "Tap the <b>&#8942;</b> menu in the top right of Chrome.") +
-        stepRow("3", "Tap <b>Add to Home screen</b> (some phones show <b>Install app</b> instead).") +
-        stepRow("4", "Tap <b>Add</b> (or <b>Install</b>) to confirm.");
-    } else {
-      html =
-        stepRow("1", "Tap your browser's <b>Share</b> or menu button and choose <b>Chrome</b> to open this page there — the steps below are specific to Chrome's menu.") +
+  // This page is opened on a PC almost as often as on the phone it's meant
+  // for — the client's own phone, which could be either platform — so the
+  // steps shown come from a manual tab, not just this page's own device.
+  // The precise per-browser checks above (must-use-Safari, switch-to-Chrome,
+  // already-installed, opened-in-an-app) only apply when they're actually
+  // true of the device looking at this page right now, so they only kick in
+  // when the selected tab matches what this device really is.
+  function iosStepsHTML() {
+    if (isStandalone && isIOS) return stepRow("&#10003;", "You're already using the installed app on this device — nothing else to do here.");
+    if (isInAppBrowser && isIOS) return stepRow("!", "This link opened inside another app's built-in browser, which can't install apps. Tap the menu (usually ⋮ or •••) and choose <b>Open in Safari</b>, then come back to this page.");
+    if (isIOS && !isSafari) return stepRow("!", "On iPhone/iPad, installing only works from <b>Safari</b> — Apple doesn't allow other browsers to do this. Open this page in Safari, then follow the steps there.");
+    return stepRow("1", "On the iPhone or iPad, scan the QR code above (or open this link) in <b>Safari</b>.") +
+      stepRow("2", "Tap the <b>Share</b> icon (square with an arrow) in Safari's toolbar.") +
+      stepRow("3", "Scroll down and tap <b>Add to Home Screen</b>.") +
+      stepRow("4", "Tap <b>Add</b> in the top right.");
+  }
+
+  function androidStepsHTML() {
+    if (isStandalone && isAndroid) return stepRow("&#10003;", "You're already using the installed app on this device — nothing else to do here.");
+    if (isInAppBrowser && isAndroid) return stepRow("!", "This link opened inside another app's built-in browser, which can't install apps. Tap the menu (usually ⋮ or •••) and choose <b>Open in Chrome</b>, then come back to this page.");
+    if (isAndroid && !isChromeAndroid) {
+      return stepRow("1", "Tap your browser's <b>Share</b> or menu button and choose <b>Chrome</b> to open this page there — the steps below are specific to Chrome's menu.") +
         stepRow("2", "In Chrome, tap the <b>&#8942;</b> menu in the top right.") +
         stepRow("3", "Tap <b>Add to Home screen</b> (some phones show <b>Install app</b> instead).") +
         stepRow("4", "Tap <b>Add</b> (or <b>Install</b>) to confirm.");
     }
-  } else {
-    html =
-      stepRow("1", "Scan the QR code above.") +
-      stepRow("2", "Look for an install icon in the address bar (usually a small monitor/plus icon), or open your browser's menu.") +
-      stepRow("3", "Choose <b>Install Glenvill Detail Viewer…</b>") +
-      stepRow("4", "It opens in its own window from then on, like a desktop app.");
+    return stepRow("1", "On the Android phone, scan the QR code above in <b>Chrome</b> (Android's default browser on most phones is not Chrome — open it in Chrome specifically).") +
+      stepRow("2", "Tap the <b>&#8942;</b> menu in the top right of Chrome.") +
+      stepRow("3", "Tap <b>Add to Home screen</b> (some phones show <b>Install app</b> instead).") +
+      stepRow("4", "Tap <b>Add</b> (or <b>Install</b>) to confirm.");
   }
-  document.getElementById("steps").innerHTML = html;
+
+  function selectPlatform(p) {
+    try { localStorage.setItem("gv.installTab", p); } catch (e) {}
+    document.getElementById("tab-ios").classList.toggle("active", p === "ios");
+    document.getElementById("tab-android").classList.toggle("active", p === "android");
+    document.getElementById("steps").innerHTML = p === "android" ? androidStepsHTML() : iosStepsHTML();
+  }
+
+  document.getElementById("tab-ios").addEventListener("click", () => selectPlatform("ios"));
+  document.getElementById("tab-android").addEventListener("click", () => selectPlatform("android"));
+
+  // Default tab: this device's own platform if it's actually a phone: the
+  // page still works perfectly as a direct install link, not only as
+  // something shown from a PC. Otherwise (a PC, the common case), whichever
+  // tab was picked last on this browser, or iPhone if neither ever applied.
+  let defaultTab = "ios";
+  if (isAndroid) defaultTab = "android";
+  else if (isIOS) defaultTab = "ios";
+  else { try { defaultTab = localStorage.getItem("gv.installTab") || "ios"; } catch (e) {} }
+  selectPlatform(defaultTab);
 </script>
 
 </body>
