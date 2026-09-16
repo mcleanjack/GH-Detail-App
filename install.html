@@ -85,6 +85,12 @@
   const isSafari = /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
   const isInAppBrowser = /FBAN|FBAV|Instagram|Line\/|Twitter|MicroMessenger/.test(ua);
   const isStandalone = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone === true;
+  // Android ships with all sorts of default browsers (Samsung Internet,
+  // Edge, Opera, a plain WebView opened from another app) whose menus don't
+  // match the "⋮ then Add to Home screen" wording below — only real Chrome
+  // does. Everything else is told to switch to Chrome first.
+  const isChromeAndroid = isAndroid && !isInAppBrowser &&
+    /Chrome\//.test(ua) && !/SamsungBrowser|EdgA|OPR\/|; ?wv\)/.test(ua);
 
   let html = "";
   if (isStandalone) {
@@ -102,11 +108,19 @@
       html = stepRow("!", "On iPhone/iPad, installing only works from <b>Safari</b> — Apple doesn't allow other browsers to do this. Open this page in Safari, then follow the steps there.");
     }
   } else if (isAndroid) {
-    html =
-      stepRow("1", "Scan the QR code above.") +
-      stepRow("2", "Tap the <b>&#8942;</b> menu in the top right of your browser.") +
-      stepRow("3", "Tap <b>Install app</b> (or <b>Add to Home screen</b>).") +
-      stepRow("4", "Confirm by tapping <b>Install</b>.");
+    if (isChromeAndroid) {
+      html =
+        stepRow("1", "Scan the QR code above (or make sure this page is open in <b>Chrome</b>).") +
+        stepRow("2", "Tap the <b>&#8942;</b> menu in the top right of Chrome.") +
+        stepRow("3", "Tap <b>Add to Home screen</b> (some phones show <b>Install app</b> instead).") +
+        stepRow("4", "Tap <b>Add</b> (or <b>Install</b>) to confirm.");
+    } else {
+      html =
+        stepRow("1", "Tap your browser's <b>Share</b> or menu button and choose <b>Chrome</b> to open this page there — the steps below are specific to Chrome's menu.") +
+        stepRow("2", "In Chrome, tap the <b>&#8942;</b> menu in the top right.") +
+        stepRow("3", "Tap <b>Add to Home screen</b> (some phones show <b>Install app</b> instead).") +
+        stepRow("4", "Tap <b>Add</b> (or <b>Install</b>) to confirm.");
+    }
   } else {
     html =
       stepRow("1", "Scan the QR code above.") +
