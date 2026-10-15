@@ -1942,7 +1942,8 @@ class Component extends DCLogic {
     { test: /^WALL_FRAMING1_WALL_FRAMING_/i, name: "Wall Framing" },
     { test: /^GH_-_METAL_FASCIA_GH_-_METAL_FASCIA_\d+$/i, name: "Metal Fascia" },
     { test: /^GH_-_METAL_GUTTER_GH_-_METAL_GUTTER_\d+$/i, name: "Metal Gutter" },
-    { test: /^GH_-_BRICK_TIE_GH_-_BRICK_TIE_\d+$/i, name: "Brick Ties" }
+    { test: /^GH_-_BRICK_TIE_GH_-_BRICK_TIE_\d+$/i, name: "Brick Ties" },
+    { test: /^GH_-_METAL_FASCIA_BRACKET_GH_-_METAL_FASCIA_BRACKET_\d+$/i, name: "Metal Fascia Bracket" }
   ];
 
   // These names stay identical across every instance instead of getting a
@@ -1951,7 +1952,7 @@ class Component extends DCLogic {
 
   // Every part with one of these names acts as a single component: hovering
   // or selecting any of them highlights them all.
-  static GROUPED_COMPONENTS = new Set(["brick ties"]);
+  static GROUPED_COMPONENTS = new Set(["brick ties", "metal fascia bracket"]);
 
   // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
   // Strip the exporter's id, drop the stage prefix, collapse the duplicated
