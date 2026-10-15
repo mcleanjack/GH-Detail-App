@@ -1346,12 +1346,26 @@ class Component extends DCLogic {
       scene.environmentIntensity = 0.75;
     }
 
-    const catcher = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.19 }));
+    // The sun's shadow fades out with distance from the model, so a low sun
+    // leaves a soft trail on the ground instead of a hard band across the view.
+    const catcherMat = new THREE.ShadowMaterial({ opacity: 0.19 });
+    catcherMat.onBeforeCompile = (shader) => {
+      shader.vertexShader = shader.vertexShader
+        .replace("void main() {", "varying vec3 vGroundPos;\nvoid main() {")
+        .replace("#include <worldpos_vertex>", "#include <worldpos_vertex>\n\tvGroundPos = (modelMatrix * vec4(transformed, 1.0)).xyz;");
+      shader.fragmentShader = shader.fragmentShader
+        .replace("void main() {", "varying vec3 vGroundPos;\nvoid main() {")
+        .replace("gl_FragColor = vec4( color, opacity * ( 1.0 - getShadowMask() ) );",
+          "float groundFade = 1.0 - smoothstep(2.2, 5.2, length(vGroundPos.xz));\n\tgl_FragColor = vec4( color, opacity * groundFade * ( 1.0 - getShadowMask() ) );");
+    };
+    const catcher = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), catcherMat);
     catcher.rotation.x = -Math.PI / 2;
     catcher.position.y = -1.3;
     catcher.receiveShadow = true;
     scene.add(catcher);
     this.shadowCatcher = catcher;
+    await this.initContactShadow();
+    await this.initComposer(w, h);
 
     const controls = new OrbitControls(camera, renderer.domElement);
     controls.enableDamping = true;
@@ -1389,6 +1403,7 @@ class Component extends DCLogic {
       camera.aspect = W / H;
       camera.updateProjectionMatrix();
       renderer.setSize(W, H);
+      if (this.composer) this.composer.setSize(W, H);
       renderer.domElement.style.width = W + "px";
       renderer.domElement.style.height = H + "px";
     };
@@ -1421,7 +1436,32 @@ class Component extends DCLogic {
       // The shadow plane would black out the view once the camera drops below
       // it, so it only exists while looking from above.
       if (this.shadowCatcher) this.shadowCatcher.visible = camera.position.y > this.shadowCatcher.position.y + 0.02;
-      renderer.render(scene, camera);
+      this.tickStageAnim();
+      if (this.contact) {
+        if (this._contactDirty && !(this._stageAnims && this._stageAnims.length)) { this._contactDirty = false; this.updateContactShadow(); }
+        this.contact.group.visible = this.contact.ready && camera.position.y > this.contact.group.position.y + 0.02;
+      }
+      // Ambient occlusion is too heavy to run every frame on phones, and the
+      // model is static: while the camera or a stage animation is moving the
+      // plain renderer draws (as fast as before), and once the view settles a
+      // single AO frame is drawn and held until something changes. AO also
+      // reads as dirt through see-through ghosts, so the x-ray selection view
+      // always uses the plain path.
+      const camKey = camera.matrixWorld.elements.join(",") + "|" + camera.projectionMatrix.elements[0] + "|" + this._lastW + "x" + this._lastH;
+      const camMoving = camKey !== this._camKey;
+      this._camKey = camKey;
+      const animating = !!(this._stageAnims && this._stageAnims.length) || !!this.mixer;
+      if (!this.composer || this._selected || camMoving || animating) {
+        this._aoKey = null;
+        renderer.render(scene, camera);
+      } else {
+        const key = (this._frameVersion || 0) + "|" + (this.root ? this.root.uuid : "") + "|" + (this.state.wire ? 1 : 0);
+        const now = performance.now();
+        if (key === this._aoKey && now - this._aoAt < 1000) return;
+        this._aoKey = key;
+        this._aoAt = now;
+        this.composer.render();
+      }
       // Overlay pass: the selected part only, on a cleared depth buffer.
       if (this._selLayer) {
         const auto = renderer.autoClear;
@@ -1434,6 +1474,192 @@ class Component extends DCLogic {
       }
     };
     loop();
+  }
+
+  // ---- render enhancements ----------------------------------------------
+
+  // Ambient occlusion: soft shading where parts meet. Rendered through a
+  // multisampled composer so edges stay anti-aliased; phones and tablets get
+  // fewer samples at a lower resolution. Any failure falls back to the plain
+  // renderer.render() path.
+  async initComposer(w, h) {
+    try {
+      const THREE = this.THREE;
+      const { EffectComposer } = await import("three/addons/postprocessing/EffectComposer.js");
+      const { RenderPass } = await import("three/addons/postprocessing/RenderPass.js");
+      const { GTAOPass } = await import("three/addons/postprocessing/GTAOPass.js");
+      const { OutputPass } = await import("three/addons/postprocessing/OutputPass.js");
+      const touch = typeof matchMedia !== "undefined" && matchMedia("(pointer: coarse)").matches;
+      const target = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType, samples: 4 });
+      const composer = new EffectComposer(this.renderer, target);
+      composer.setPixelRatio(Math.min(devicePixelRatio, touch ? 1.5 : 2));
+      composer.setSize(w, h);
+      composer.addPass(new RenderPass(this.scene, this.camera));
+      const ao = new GTAOPass(this.scene, this.camera, w, h);
+      ao.output = GTAOPass.OUTPUT.Default;
+      ao.blendIntensity = 0.85;
+      ao.updateGtaoMaterial({ radius: 0.18, distanceExponent: 1.4, thickness: 1.2, scale: 1.0, samples: touch ? 8 : 16 });
+      ao.updatePdMaterial({ lumaPhi: 10, depthPhi: 2, normalPhi: 3, radius: 6, rings: 2, samples: touch ? 8 : 16 });
+      composer.addPass(ao);
+      composer.addPass(new OutputPass());
+      this.composer = composer;
+      this.aoPass = ao;
+    } catch (e) {
+      console.warn("ambient occlusion unavailable:", e);
+      this.composer = null;
+    }
+  }
+
+  // Contact shadow: a blurred, top-down depth render of the model laid on the
+  // ground, darkest where parts touch it. The model is static, so it is only
+  // re-rendered when the model or the visible stage changes (_contactDirty).
+  async initContactShadow() {
+    try {
+      const THREE = this.THREE;
+      const { HorizontalBlurShader } = await import("three/addons/shaders/HorizontalBlurShader.js");
+      const { VerticalBlurShader } = await import("three/addons/shaders/VerticalBlurShader.js");
+      const size = 512;
+      const target = new THREE.WebGLRenderTarget(size, size);
+      target.texture.generateMipmaps = false;
+      const blurTarget = new THREE.WebGLRenderTarget(size, size);
+      blurTarget.texture.generateMipmaps = false;
+      const group = new THREE.Group();
+      group.position.y = -1.3 + 0.002;
+      const geo = new THREE.PlaneGeometry(1, 1).rotateX(Math.PI / 2);
+      const plane = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ map: target.texture, opacity: 0.5, transparent: true, depthWrite: false }));
+      plane.renderOrder = 1;
+      plane.scale.y = -1;
+      plane.raycast = () => {};
+      group.add(plane);
+      const blurPlane = new THREE.Mesh(geo);
+      blurPlane.visible = false;
+      group.add(blurPlane);
+      const cam = new THREE.OrthographicCamera(-0.5, 0.5, 0.5, -0.5, 0, 1);
+      cam.rotation.x = Math.PI / 2;
+      group.add(cam);
+      const depthMat = new THREE.MeshDepthMaterial();
+      depthMat.userData.darkness = { value: 1.6 };
+      depthMat.onBeforeCompile = (shader) => {
+        shader.uniforms.darkness = depthMat.userData.darkness;
+        shader.fragmentShader = "uniform float darkness;\n" + shader.fragmentShader.replace(
+          "gl_FragColor = vec4( vec3( 1.0 - fragCoordZ ), opacity );",
+          "gl_FragColor = vec4( vec3( 0.0 ), ( 1.0 - fragCoordZ ) * darkness );");
+      };
+      depthMat.depthTest = false;
+      depthMat.depthWrite = false;
+      const hBlur = new THREE.ShaderMaterial(HorizontalBlurShader); hBlur.depthTest = false;
+      const vBlur = new THREE.ShaderMaterial(VerticalBlurShader); vBlur.depthTest = false;
+      group.visible = false;
+      this.scene.add(group);
+      this.contact = { group, plane, blurPlane, cam, depthMat, hBlur, vBlur, target, blurTarget, ready: false };
+    } catch (e) {
+      console.warn("contact shadow unavailable:", e);
+      this.contact = null;
+    }
+  }
+
+  updateContactShadow() {
+    const c = this.contact, renderer = this.renderer, scene = this.scene, THREE = this.THREE;
+    if (!c || !renderer) return;
+    if (!this.root) { c.ready = false; return; }
+    const box = new THREE.Box3();
+    this.root.traverse(o => {
+      if (!o.isMesh || (o.name && /^__/.test(o.name))) return;
+      let vis = true;
+      for (let p = o; p; p = p.parent) if (!p.visible) { vis = false; break; }
+      if (vis) box.expandByObject(o);
+    });
+    if (box.isEmpty()) { c.ready = false; return; }
+    const size = box.getSize(new THREE.Vector3()), center = box.getCenter(new THREE.Vector3());
+    const span = Math.max(size.x, size.z) * 1.5 + 0.6;
+    // Only parts sitting near the ground darken it; overhangs (roofs,
+    // gutters) are left to the sun shadow so they don't read as floating.
+    const reach = Math.max(0.25, Math.min(size.y, 0.55));
+    c.group.position.x = center.x;
+    c.group.position.z = center.z;
+    c.plane.scale.set(span, -1, span);
+    c.blurPlane.scale.set(span, 1, span);
+    Object.assign(c.cam, { left: -span / 2, right: span / 2, top: span / 2, bottom: -span / 2, near: 0, far: reach });
+    c.cam.updateProjectionMatrix();
+    c.group.updateMatrixWorld(true);
+
+    const hidden = [];
+    const hide = (o) => { if (o && o.visible) { o.visible = false; hidden.push(o); } };
+    hide(c.plane); hide(this.shadowCatcher);
+    this.root.traverse(o => { if ((o.isLine || o.isLineSegments) && o.visible) hide(o); });
+    const prevTarget = renderer.getRenderTarget(), prevAlpha = renderer.getClearAlpha();
+    const prevBg = scene.background;
+    scene.background = null;
+    scene.overrideMaterial = c.depthMat;
+    renderer.setClearAlpha(0);
+    renderer.setRenderTarget(c.target);
+    renderer.clear();
+    renderer.render(scene, c.cam);
+    scene.overrideMaterial = null;
+    const blur = (amount) => {
+      c.blurPlane.visible = true;
+      c.blurPlane.material = c.hBlur;
+      c.hBlur.uniforms.tDiffuse.value = c.target.texture;
+      c.hBlur.uniforms.h.value = amount / 256;
+      renderer.setRenderTarget(c.blurTarget);
+      renderer.render(c.blurPlane, c.cam);
+      c.blurPlane.material = c.vBlur;
+      c.vBlur.uniforms.tDiffuse.value = c.blurTarget.texture;
+      c.vBlur.uniforms.v.value = amount / 256;
+      renderer.setRenderTarget(c.target);
+      renderer.render(c.blurPlane, c.cam);
+      c.blurPlane.visible = false;
+    };
+    blur(2.2);
+    blur(0.9);
+    renderer.setRenderTarget(prevTarget);
+    renderer.setClearAlpha(prevAlpha);
+    scene.background = prevBg;
+    hidden.forEach(o => { o.visible = true; });
+    c.ready = true;
+    this._frameVersion = (this._frameVersion || 0) + 1;
+  }
+
+  // Stage build-up: stepping forward drops each newly shown part into place
+  // from just above, slightly staggered. Stepping back hides parts at once.
+  startStageAnim(nodes) {
+    const THREE = this.THREE;
+    this.finishStageAnims();
+    if (!nodes.length) return;
+    const now = performance.now();
+    const lift = 0.9, dur = 620, stagger = Math.min(28, 420 / nodes.length);
+    this._stageAnims = nodes.map((node, i) => {
+      if (!node.userData.__basePos) node.userData.__basePos = node.position.clone();
+      const base = node.userData.__basePos;
+      node.position.copy(base);
+      node.updateMatrixWorld(true);
+      const p0 = node.getWorldPosition(new THREE.Vector3());
+      const p1 = p0.clone();
+      p1.y += lift;
+      if (node.parent) { node.parent.worldToLocal(p0); node.parent.worldToLocal(p1); }
+      const from = base.clone().add(p1.sub(p0));
+      node.position.copy(from);
+      return { node, from, to: base, t0: now + i * stagger, dur };
+    });
+  }
+
+  finishStageAnims() {
+    (this._stageAnims || []).forEach(a => a.node.position.copy(a.to));
+    this._stageAnims = [];
+  }
+
+  tickStageAnim() {
+    const list = this._stageAnims;
+    if (!list || !list.length) return;
+    const now = performance.now();
+    let running = 0;
+    list.forEach(a => {
+      const t = Math.max(0, Math.min(1, (now - a.t0) / a.dur));
+      const e = 1 - Math.pow(1 - t, 3);
+      a.node.position.lerpVectors(a.from, a.to, e);
+      if (t < 1) running++;
+    });
+    if (!running) { this._stageAnims = []; this._contactDirty = true; }
   }
 
   mat(color, opts) {
@@ -1753,6 +1979,9 @@ class Component extends DCLogic {
 
   clearModel() {
     this.setSelection(null);
+    this.finishStageAnims();
+    this._contactDirty = true;
+    this._frameVersion = (this._frameVersion || 0) + 1;
     this._hover = null;
     this.components = [];
     if (this.mixer) { try { this.mixer.stopAllAction(); } catch (e) {} }
@@ -1781,6 +2010,7 @@ class Component extends DCLogic {
     root.scale.setScalar(k);
     root.position.set(-center.x * k, -box.min.y * k - 1.3, -center.z * k);
     root.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+    this._contactDirty = true;
   }
 
   // Walk the scene graph and register the top-most NAMED nodes that contain
@@ -2099,7 +2329,7 @@ class Component extends DCLogic {
     });
   }
 
-  applyStage(n) {
+  applyStage(n, animate) {
     if (this.stageClips && this.mixer) {
       this.mixer.stopAllAction();
       const clip = this.stageClips[n - 1];
@@ -2114,20 +2344,29 @@ class Component extends DCLogic {
     }
     if (this.stageGroups) {
       const cur = this.stageGroups[n - 1];
+      const shown = [];
+      const show = (node, on) => {
+        if (!node) return;
+        if (on && !node.visible) shown.push(node);
+        node.visible = on;
+      };
       this.stageGroups.forEach(g => {
         const on = this.stageExclusive ? g === cur : g.n <= cur.n;
-        (g.nodes || [g.node]).forEach(node => { if (node) node.visible = on; });
+        (g.nodes || [g.node]).forEach(node => show(node, on));
       });
       // Helper geometry matched to a stage is already in that stage's node list.
       // Overlays that belong to no single stage show only on the final stage,
       // so no edges appear over parts that have not been built yet.
       const last = n >= this.stageGroups.length;
-      (this.freeHelpers || []).forEach(node => { node.visible = last; });
+      (this.freeHelpers || []).forEach(node => show(node, last));
       // Anything the stage pass never touched — geometry that carries no
       // buildStageId and sits outside every group — would otherwise stay
       // visible through the whole sequence and read as an out-of-order part.
       // It follows the same rule as unmatched overlays: final stage only.
-      (this.unstagedNodes || []).forEach(node => { node.visible = last; });
+      (this.unstagedNodes || []).forEach(node => show(node, last));
+      if (animate) this.startStageAnim(shown); else this.finishStageAnims();
+      this._contactDirty = true;
+      this._frameVersion = (this._frameVersion || 0) + 1;
       this.indexComponents();
     }
   }
@@ -2327,6 +2566,7 @@ class Component extends DCLogic {
 
   tint(comp, color, intensity) {
     if (!comp) return;
+    this._frameVersion = (this._frameVersion || 0) + 1;
     comp.node.traverse(o => {
       if (!o.isMesh || !o.material) return;
       const mats = Array.isArray(o.material) ? o.material : [o.material];
@@ -2458,6 +2698,7 @@ class Component extends DCLogic {
 
   setSelection(comp) {
     if (this._selected === comp) return;
+    this._frameVersion = (this._frameVersion || 0) + 1;
     if (this._selected) { this.tint(this._selected, null); this.setFront(this._selected, false); }
     this._selected = comp || null;
     this.applyGhosting();
@@ -2546,7 +2787,7 @@ class Component extends DCLogic {
     const total = this.state.stageCount || 0;
     if (total < 2) return;
     const next = ((this.state.stage - 1 + dir + total) % total) + 1;
-    this.setState({ stage: next, stageShown: true }, () => this.applyStage(next));
+    this.setState({ stage: next, stageShown: true }, () => this.applyStage(next, true));
     clearTimeout(this._stageT);
     this._stageT = setTimeout(() => this.setState({ stageShown: false }), 1500);
   }
