@@ -1916,12 +1916,14 @@ class Component extends DCLogic {
   // those in before the generic cleanup below runs.
   static NAME_OVERRIDES = [
     { test: /^Structural_Pedestals_Bison-Innovative-Products_Screwjack_B4_/i, name: "Tile Pedestals" },
-    { test: /^Floor[_\s]Beam[_\s]\d+$/i, name: "Floor Beam" }
+    { test: /^Floor[_\s]Beam[_\s]\d+$/i, name: "Floor Beam" },
+    { test: /^TOP_PLATE1_TOP_PLATE_/i, name: "Top Plate" },
+    { test: /^WALL_FRAMING1_WALL_FRAMING_/i, name: "Wall Framing" }
   ];
 
   // These names stay identical across every instance instead of getting a
   // disambiguating " 2", " 3", … suffix like other repeated parts do.
-  static NO_DEDUPE_SUFFIX = new Set(["floor beam", "tile pedestals"]);
+  static NO_DEDUPE_SUFFIX = new Set(["floor beam", "tile pedestals", "top plate", "wall framing"]);
 
   // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
   // Strip the exporter's id, drop the stage prefix, collapse the duplicated
@@ -1944,6 +1946,21 @@ class Component extends DCLogic {
     }
     return w.map(x => x.length <= 2 ? x.toUpperCase()
       : x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()).join(" ");
+  }
+
+  // True when a component's merged info has something for the panel to show
+  // beyond its name. Blanks and placeholders ("-", "N/A", "TBC") don't count,
+  // matching how the panel itself decides a field is assigned.
+  static hasProductInfo(info) {
+    const has = (v) => {
+      const s = String(v == null ? "" : v).trim();
+      return !!s && !/^[\u2013\u2014-]+$/.test(s) && !/^(n\/a|tbc|tbd|not specified|unknown)$/i.test(s);
+    };
+    if (!info) return false;
+    if (["desc", "supplier", "contact", "phone", "email", "manualUrl", "productUrl", "image"].some(k => has(info[k]))) return true;
+    if (has(info.host) && has(info.slug)) return true;
+    if (info.linkedDetail && info.linkedDetail.dataBase64) return true;
+    return (info.specs || []).some(r => r && has(r.label) && has(r.value));
   }
 
   // Objects with no buildStageId are not part of the declared sequence.
@@ -2129,6 +2146,12 @@ class Component extends DCLogic {
       if (info || saved[c.name]) extras[c.name] = Object.assign({}, saved[c.name] || {}, info || {});
     });
     this.componentExtras = extras;
+    // Parts with no product information stay visible but can't be hovered or
+    // selected: there is nothing for the panel to show about them.
+    found.forEach(c => {
+      c.selectable = Component.hasProductInfo(Object.assign({},
+        Component.componentInfo(spec0.code, c.name) || {}, extras[c.name] || {}));
+    });
     if (spec0.importId) {
       Component.SAVED_COMPONENTS[spec0.importId] = extras;
       const keep = {};
@@ -2166,7 +2189,9 @@ class Component extends DCLogic {
     let o = hits[0].object;
     while (o) {
       const match = this.components.find(c => c.node === o);
-      if (match) return match;
+      // The nearest part still blocks the ray, so clicking a part with no
+      // product information never selects whatever sits behind it.
+      if (match) return match.selectable ? match : null;
       o = o.parent;
     }
     return null;
