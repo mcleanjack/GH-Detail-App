@@ -15,6 +15,7 @@ New model:
 - Code: <UNIQUE CODE, e.g. WIN-001> (must not match any existing MODELS code)
 - GLB file: project/uploads/<FILE NAME>.glb
 - 2D detail sheet PDF: project/uploads/<FILE NAME>.pdf  (or "none")
+- Sun (from the editor's Sun panel): direction <DEG>°, elevation <DEG>°  (or "default")
 
 Read project/CLAUDE.md first, then follow these steps:
 
@@ -38,8 +39,10 @@ Read project/CLAUDE.md first, then follow these steps:
      { name: "<MODEL NAME>", code: "<CODE>",
        url: "assets/<slug>.glb",
        shippedSheet: "assets/<slug>-sheet.pdf" }
-   Leave out shippedSheet if there is no PDF. Do not change any other viewer
-   code.
+   Leave out shippedSheet if there is no PDF. If a sun was given, add
+     sun: { direction: <DEG>, elevation: <DEG> }
+   (like the Gutter To Brickwork Detail entry); otherwise leave it out so the
+   model keeps the viewer's default sun. Do not change any other viewer code.
 
 4. List the component names the panel will show (run the GLB node names
    through Component.prettyName and the same de-duplication the viewer uses).

@@ -488,7 +488,8 @@ class Component extends DCLogic {
     },
     {
       name: "Gutter To Brickwork Detail", code: "GUT-001",
-      url: "assets/gutter-to-brickwork-detail.glb"
+      url: "assets/gutter-to-brickwork-detail.glb",
+      sun: { direction: 255, elevation: 19 }
     }
   ];
 
@@ -1313,12 +1314,10 @@ class Component extends DCLogic {
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa39c, 1.0));
     const key = new THREE.DirectionalLight(0xfffaf2, 1.75);
-    // Sun orientation matches the model-authoring editor's sun panel:
-    // horizontal direction 255\u00b0 (measured from +Z toward +X), elevation 19\u00b0.
-    {
-      const az = THREE.MathUtils.degToRad(255), el = THREE.MathUtils.degToRad(19), d = 13;
-      key.position.set(Math.sin(az) * Math.cos(el) * d, Math.sin(el) * d, Math.cos(az) * Math.cos(el) * d);
-    }
+    key.position.set(5.4, 9.2, 6.6);
+    // The default sun; a model can override its orientation (see applySun).
+    this.keyLight = key;
+    this.keyLightDefault = key.position.clone();
     key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048);
     key.shadow.radius = 4;
@@ -1685,9 +1684,25 @@ class Component extends DCLogic {
     }
   }
 
+  // A model's optional sun: { direction, elevation } (degrees) matches the
+  // model-authoring editor's sun panel: horizontal direction measured from +Z
+  // toward +X, elevation above the ground. Models without one keep the
+  // viewer's default sun.
+  applySun(spec) {
+    const key = this.keyLight;
+    if (!key || !this.keyLightDefault) return;
+    const sun = spec && spec.sun;
+    if (!sun) { key.position.copy(this.keyLightDefault); return; }
+    const az = this.THREE.MathUtils.degToRad(Number(sun.direction) || 0);
+    const el = this.THREE.MathUtils.degToRad(Number(sun.elevation) || 0);
+    const d = this.keyLightDefault.length();
+    key.position.set(Math.sin(az) * Math.cos(el) * d, Math.sin(el) * d, Math.cos(az) * Math.cos(el) * d);
+  }
+
   async loadModel() {
     const spec = Component.MODELS[this.state.model] || Component.MODELS[0] || {};
     this.persistPickedModel(spec);
+    this.applySun(spec);
     this.clearModel();
     // initThree() calls this unconditionally on mount, before anything has
     // been picked — harmless while MODELS started empty (spec.buffer/url was
