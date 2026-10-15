@@ -1943,7 +1943,9 @@ class Component extends DCLogic {
     { test: /^GH_-_METAL_FASCIA_GH_-_METAL_FASCIA_\d+$/i, name: "Metal Fascia" },
     { test: /^GH_-_METAL_GUTTER_GH_-_METAL_GUTTER_\d+$/i, name: "Metal Gutter" },
     { test: /^GH_-_BRICK_TIE_GH_-_BRICK_TIE_\d+$/i, name: "Brick Ties" },
-    { test: /^GH_-_METAL_FASCIA_BRACKET_GH_-_METAL_FASCIA_BRACKET_\d+$/i, name: "Metal Fascia Bracket" }
+    { test: /^GH_-_METAL_FASCIA_BRACKET_GH_-_METAL_FASCIA_BRACKET_\d+$/i, name: "Metal Fascia Bracket" },
+    // The cricket flashing is part of the apron flashing assembly.
+    { test: /^CRICKET_FLASHING_CRICKET_FLASHING_\d+$/i, name: "Apron Flashing" }
   ];
 
   // These names stay identical across every instance instead of getting a
@@ -1952,7 +1954,7 @@ class Component extends DCLogic {
 
   // Every part with one of these names acts as a single component: hovering
   // or selecting any of them highlights them all.
-  static GROUPED_COMPONENTS = new Set(["brick ties", "metal fascia bracket"]);
+  static GROUPED_COMPONENTS = new Set(["brick ties", "metal fascia bracket", "apron flashing"]);
 
   // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
   // Strip the exporter's id, drop the stage prefix, collapse the duplicated
@@ -2187,7 +2189,12 @@ class Component extends DCLogic {
     const saved = (spec0.importId && Component.SAVED_COMPONENTS[spec0.importId]) || {};
     const extras = {};
     found.forEach(c => {
-      const info = this.root ? Component.infoFromNode(c.members ? c.members[0] : c.node, this.root) : null;
+      // A group's info is merged across its members (earlier members win), so
+      // a member with no product info of its own still shows the group's.
+      const info = !this.root ? null : c.members
+        ? c.members.map(m => Component.infoFromNode(m, this.root)).filter(Boolean).reverse()
+            .reduce((acc, i) => Object.assign(acc || {}, i), null)
+        : Component.infoFromNode(c.node, this.root);
       // Live model data wins; anything saved with the import fills the gaps
       // (and covers objects whose properties were edited away since).
       if (info || saved[c.name]) extras[c.name] = Object.assign({}, saved[c.name] || {}, info || {});
