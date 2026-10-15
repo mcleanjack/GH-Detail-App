@@ -1937,13 +1937,20 @@ class Component extends DCLogic {
   static NAME_OVERRIDES = [
     { test: /^Structural_Pedestals_Bison-Innovative-Products_Screwjack_B4_/i, name: "Tile Pedestals" },
     { test: /^Floor[_\s]Beam[_\s]\d+$/i, name: "Floor Beam" },
-    { test: /^TOP_PLATE1_TOP_PLATE_/i, name: "Top Plate" },
-    { test: /^WALL_FRAMING1_WALL_FRAMING_/i, name: "Wall Framing" }
+    { test: /^TOP_PLATE1_TOP_PLATE_/i, name: "Bottom Plate" },
+    { test: /^WALL_FRAMING1_WALL_FRAMING_/i, name: "Wall Framing" },
+    { test: /^GH_-_METAL_FASCIA_GH_-_METAL_FASCIA_\d+$/i, name: "Metal Fascia" },
+    { test: /^GH_-_METAL_GUTTER_GH_-_METAL_GUTTER_\d+$/i, name: "Metal Gutter" },
+    { test: /^GH_-_BRICK_TIE_GH_-_BRICK_TIE_\d+$/i, name: "Brick Ties" }
   ];
 
   // These names stay identical across every instance instead of getting a
   // disambiguating " 2", " 3", … suffix like other repeated parts do.
-  static NO_DEDUPE_SUFFIX = new Set(["floor beam", "tile pedestals", "top plate", "wall framing"]);
+  static NO_DEDUPE_SUFFIX = new Set(["floor beam", "tile pedestals", "wall framing"]);
+
+  // Every part with one of these names acts as a single component: hovering
+  // or selecting any of them highlights them all.
+  static GROUPED_COMPONENTS = new Set(["brick ties"]);
 
   // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
   // Strip the exporter's id, drop the stage prefix, collapse the duplicated
@@ -2146,12 +2153,30 @@ class Component extends DCLogic {
       nodes = inner;
     }
     const seen = new Map();
-    const found = nodes.map(node => {
+    const parts = nodes.map(node => {
       const base = Component.prettyName(node.name) || "Part";
       const k = base.toLowerCase();
       const n = (seen.get(k) || 0) + 1;
       seen.set(k, n);
-      return { name: (n > 1 && !Component.NO_DEDUPE_SUFFIX.has(k)) ? base + " " + n : base, node };
+      const keepName = Component.NO_DEDUPE_SUFFIX.has(k) || Component.GROUPED_COMPONENTS.has(k);
+      return { name: (n > 1 && !keepName) ? base + " " + n : base, node };
+    });
+    // Grouped parts collapse into one entry whose node stands in for all of
+    // its members: tint, ghosting and the selection overlay only ever call
+    // node.traverse(), and picking checks members directly.
+    const groups = new Map();
+    const found = [];
+    parts.forEach(c => {
+      const k = c.name.toLowerCase();
+      if (!Component.GROUPED_COMPONENTS.has(k)) { found.push(c); return; }
+      let g = groups.get(k);
+      if (!g) {
+        g = { name: c.name, members: [] };
+        g.node = { traverse: fn => g.members.forEach(m => m.traverse(fn)) };
+        groups.set(k, g);
+        found.push(g);
+      }
+      g.members.push(c.node);
     });
     this.components = found;
     // Product information carried by the model's own objects, keyed by the
@@ -2160,7 +2185,7 @@ class Component extends DCLogic {
     const saved = (spec0.importId && Component.SAVED_COMPONENTS[spec0.importId]) || {};
     const extras = {};
     found.forEach(c => {
-      const info = this.root ? Component.infoFromNode(c.node, this.root) : null;
+      const info = this.root ? Component.infoFromNode(c.members ? c.members[0] : c.node, this.root) : null;
       // Live model data wins; anything saved with the import fills the gaps
       // (and covers objects whose properties were edited away since).
       if (info || saved[c.name]) extras[c.name] = Object.assign({}, saved[c.name] || {}, info || {});
@@ -2204,11 +2229,11 @@ class Component extends DCLogic {
     );
     this._ray = this._ray || new this.THREE.Raycaster();
     this._ray.setFromCamera(ndc, this.camera);
-    const hits = this._ray.intersectObjects(this.components.map(c => c.node), true);
+    const hits = this._ray.intersectObjects(this.components.flatMap(c => c.members || [c.node]), true);
     if (!hits.length) return null;
     let o = hits[0].object;
     while (o) {
-      const match = this.components.find(c => c.node === o);
+      const match = this.components.find(c => c.node === o || (c.members && c.members.includes(o)));
       // The nearest part still blocks the ray, so clicking a part with no
       // product information never selects whatever sits behind it.
       if (match) return match.selectable ? match : null;
