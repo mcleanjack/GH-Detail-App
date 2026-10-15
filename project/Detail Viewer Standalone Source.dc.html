@@ -1313,7 +1313,12 @@ class Component extends DCLogic {
 
     scene.add(new THREE.HemisphereLight(0xffffff, 0x9aa39c, 1.0));
     const key = new THREE.DirectionalLight(0xfffaf2, 1.75);
-    key.position.set(5.4, 9.2, 6.6);
+    // Sun orientation matches the model-authoring editor's sun panel:
+    // horizontal direction 255\u00b0 (measured from +Z toward +X), elevation 19\u00b0.
+    {
+      const az = THREE.MathUtils.degToRad(255), el = THREE.MathUtils.degToRad(19), d = 13;
+      key.position.set(Math.sin(az) * Math.cos(el) * d, Math.sin(el) * d, Math.cos(az) * Math.cos(el) * d);
+    }
     key.castShadow = true;
     key.shadow.mapSize.set(2048, 2048);
     key.shadow.radius = 4;
