@@ -1963,6 +1963,9 @@ class Component extends DCLogic {
   // or selecting any of them highlights them all.
   static GROUPED_COMPONENTS = new Set(["brick ties", "metal fascia bracket", "apron flashing"]);
 
+  // Steel section abbreviations that always display in capitals.
+  static UPPERCASE_WORDS = new Set(["pfc", "shs"]);
+
   // CAD exports carry names like "Floor_Beam_STEP_1_-_FLOOR_BEAM_314872".
   // Strip the exporter's id, drop the stage prefix, collapse the duplicated
   // half most exporters append, and title-case what is left.
@@ -1982,7 +1985,7 @@ class Component extends DCLogic {
       const tail = w.slice(k).map(x => x.toLowerCase()).filter(x => x !== "-");
       if (tail.length && tail.every(x => head.indexOf(x) > -1)) { w = w.slice(0, k); break; }
     }
-    return w.map(x => x.length <= 2 ? x.toUpperCase()
+    return w.map(x => x.length <= 2 || Component.UPPERCASE_WORDS.has(x.toLowerCase()) ? x.toUpperCase()
       : x.charAt(0).toUpperCase() + x.slice(1).toLowerCase()).join(" ");
   }
 
@@ -2205,13 +2208,16 @@ class Component extends DCLogic {
       // Live model data wins; anything saved with the import fills the gaps
       // (and covers objects whose properties were edited away since).
       if (info || saved[c.name]) extras[c.name] = Object.assign({}, saved[c.name] || {}, info || {});
+      // Kept on the part too: parts that share a display name (NO_DEDUPE_SUFFIX)
+      // still show their own information.
+      c.extras = (info || saved[c.name]) ? Object.assign({}, saved[c.name] || {}, info || {}) : null;
     });
     this.componentExtras = extras;
     // Parts with no product information stay visible but can't be hovered or
     // selected: there is nothing for the panel to show about them.
     found.forEach(c => {
       c.selectable = Component.hasProductInfo(Object.assign({},
-        Component.componentInfo(spec0.code, c.name) || {}, extras[c.name] || {}));
+        Component.componentInfo(spec0.code, c.name) || {}, c.extras || {}));
     });
     if (spec0.importId) {
       Component.SAVED_COMPONENTS[spec0.importId] = extras;
@@ -2580,7 +2586,8 @@ class Component extends DCLogic {
     // Registry entry first, then anything the model file itself declares on
     // that object — an imported model's own data wins over the registry.
     const reg = is2D || !s.selected ? null : Component.componentInfo(spec.code, s.selected);
-    const ext = is2D || !s.selected ? null : ((this.componentExtras || {})[s.selected] || null);
+    const sel = this._selected && this._selected.name === s.selected ? this._selected : null;
+    const ext = is2D || !s.selected ? null : ((sel && sel.extras) || (this.componentExtras || {})[s.selected] || null);
     const comp = is2D || !s.selected ? null : Object.assign({}, reg || {}, ext || {}, {
       specs: ((reg && reg.specs) || []).concat((ext && ext.specs) || [])
     });
