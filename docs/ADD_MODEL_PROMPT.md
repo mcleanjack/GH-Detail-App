@@ -1,7 +1,7 @@
 # Prompt: add a new built-in model
 
 Copy everything inside the box below into a new Claude Code session on this
-repo. Fill in the four `<…>` placeholders first, and upload/commit the files
+repo. Fill in the `<…>` placeholders first, and upload/commit the files
 to `project/uploads/` before you send it.
 
 ```text
@@ -9,6 +9,15 @@ Add a new built-in model to the Glenvill 3D Detail Viewer
 (github.com/mcleanjack/GH-Detail-App). It must work and display information
 exactly like the existing "Balcony Parapet Detail" (code BAL-001). Do not add
 new features or change how the viewer looks or behaves.
+
+Every component with no product information embedded in the GLB must stay
+visible but must NOT be selectable: no hover highlight, no pointer cursor, and
+clicking it does nothing (a click on it must not select the part behind it
+either). This already works this way for "Gutter To Brickwork Detail": the
+viewer marks each component selectable only when Component.hasProductInfo()
+finds real content (blanks and placeholders like "-" or "N/A" don't count).
+Rely on that existing behaviour; do not add new code for it, and do not add
+product info to make parts selectable.
 
 New model:
 - Display name: <MODEL NAME, e.g. Window Head Flashing Detail>
@@ -63,6 +72,9 @@ Read project/CLAUDE.md first, then follow these steps:
    - Balcony Parapet Detail still loads exactly as before
    - clicking a component that has productInfo fills the side panel
      (title, description, supplier/contact block, links)
+   - every component WITHOUT product info is visible but not selectable:
+     hover it and click it on the canvas and confirm nothing highlights,
+     the cursor stays normal and nothing gets selected
    - the build-stage stepper (< >) steps through the stages in order
    - the 2D view (square button) shows the PDF sheet, if one was given
    Send me a screenshot of the new model in 3D with a component selected.
@@ -72,6 +84,6 @@ Read project/CLAUDE.md first, then follow these steps:
    branch for this session. Don't open a PR unless I ask.
 
 When you're done, give me a short summary: the component names, the stages,
-which components have no product info (the panel will show only their name
-for those), and anything you weren't sure about.
+which components have no product info (these are visible but can't be
+selected), and anything you weren't sure about.
 ```
